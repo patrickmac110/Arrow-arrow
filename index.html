@@ -51,12 +51,14 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
 .note{font-size:13px;line-height:1.45;color:#aeb9e9}.winOverlay{position:absolute;inset:0;z-index:40;display:none;place-items:center;background:radial-gradient(circle at center,rgba(87,243,255,.18),rgba(3,5,14,.7));backdrop-filter:blur(6px)}.winOverlay.show{display:grid}.winCard{width:min(86vw,380px);border-radius:28px;text-align:center;padding:24px;background:rgba(15,22,54,.9);box-shadow:0 20px 70px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.14)}.winCard h2{margin:0 0 8px;font-size:30px}.winCard.danger h2{color:#ff5d83}.winCard p{margin:0 0 16px;color:#b9c7ff}.winButtons{display:flex;gap:10px;justify-content:center}.winButtons button{min-height:46px;padding:0 16px;border-radius:15px;background:rgba(255,255,255,.1);font-weight:900}.winButtons button:first-child{background:#57f3ff;color:#052044}
 @media(max-width:520px){.brandText{display:none}.iconBtn{width:50px;height:50px}.pill{display:none;min-width:84px;font-size:20px;padding:8px 12px}.stageWrap{padding:0}.stageCard{border-radius:0;max-height:none}.bigBtn{width:50px;height:50px;min-height:50px;border-radius:50%}.bigBtn.newLevel{width:auto;min-width:112px;border-radius:999px}.bigBtn.primary{width:auto;min-width:112px;border-radius:999px}.hud{top:calc(78px + var(--safe-top))}}
 
-.installPrompt{position:fixed;left:50%;bottom:calc(86px + var(--safe-bottom));transform:translateX(-50%) translateY(18px);z-index:45;width:min(92vw,420px);padding:14px;border-radius:24px;background:rgba(8,13,36,.94);backdrop-filter:blur(18px);box-shadow:0 20px 70px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.13);display:none;gap:12px;align-items:center}
+.installPrompt{position:fixed;left:50%;bottom:calc(86px + var(--safe-bottom));transform:translateX(-50%) translateY(18px);z-index:49;width:min(92vw,430px);padding:14px;border-radius:24px;background:rgba(8,13,36,.96);backdrop-filter:blur(18px);box-shadow:0 20px 70px rgba(0,0,0,.46),inset 0 0 0 1px rgba(255,255,255,.14);display:none;gap:12px;align-items:center}
 .installPrompt.show{display:flex;animation:installIn .18s ease forwards}@keyframes installIn{to{transform:translateX(-50%) translateY(0)}}
-.installIcon{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.installCopy{min-width:0;flex:1}.installCopy b{display:block;font-size:14px}.installCopy span{display:block;font-size:12px;opacity:.78;line-height:1.35}
+.installIcon{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);flex:0 0 auto}
+.installCopy{min-width:0;flex:1}.installCopy b{display:block;font-size:14px}.installCopy span{display:block;font-size:12px;opacity:.82;line-height:1.35}
 .installActions{display:flex;gap:8px}.installActions button{height:40px;border-radius:999px;padding:0 12px;background:rgba(255,255,255,.12);font-weight:900}.installActions .primaryInstall{background:linear-gradient(135deg,rgba(94,110,255,.95),rgba(98,134,255,.88))}
-#app.paper .installPrompt{background:rgba(255,248,230,.95);color:#594532}.iosSteps{font-size:12px;opacity:.78;margin-top:4px}
+#app.paper .installPrompt{background:rgba(255,248,230,.97);color:#594532}.iosSteps{font-size:12px;opacity:.82;margin-top:4px;line-height:1.35}
+.installMenuHint{font-size:12px;opacity:.82;margin-top:4px;line-height:1.35}
+@media(max-width:430px){.installPrompt{bottom:calc(78px + var(--safe-bottom));width:calc(100vw - 22px);padding:12px}.installActions button{padding:0 10px}.installIcon{width:44px;height:44px}}
 
 
 @media(max-height:720px){
@@ -90,7 +92,8 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   <div class="installCopy">
     <b id="installTitle">Install Arrow Slither</b>
     <span id="installText">Add it to your home screen for full-screen offline play.</span>
-    <div class="iosSteps" id="iosSteps" style="display:none">iPhone/iPad: tap Share, then “Add to Home Screen.”</div>
+    <div class="iosSteps" id="iosSteps" style="display:none">iPhone/iPad: open in Safari, tap Share, then “Add to Home Screen.”</div>
+    <div class="installMenuHint" id="installMenuHint" style="display:none">Browser did not expose a native install button yet. Use the browser menu and choose “Add to Home screen” or “Install app.”</div>
   </div>
   <div class="installActions">
     <button id="installDismiss" aria-label="Dismiss install prompt">×</button>
@@ -996,6 +999,84 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   function markPending(){els.apply.querySelector("span").textContent="Apply*"}
   els.levelInput.oninput=()=>{els.levelValue.textContent=els.levelInput.value;markPending()};els.sizeSelect.onchange=()=>{els.sizeValue.textContent=els.sizeSelect.value==="auto"?"Auto":els.sizeSelect.value.replace("x"," × ");markPending()};els.shapeSelect.onchange=()=>{els.shapeValue.textContent=SHAPES[els.shapeSelect.value];markPending()};els.twistInput.oninput=()=>{els.twistValue.textContent=["Straight","Gentle","Balanced","Curvy","Wild"][Number(els.twistInput.value)-1];markPending()};els.tangleInput.oninput=()=>{els.tangleValue.textContent=["Open","Mild","Layered","Entangled","Chaos"][Number(els.tangleInput.value)-1];markPending()};els.dragInput.onchange=()=>{els.dragValue.textContent=els.dragInput.checked?"On":"Off";markPending()};els.diffChips.onclick=e=>{const c=e.target.closest(".chip[data-diff]");if(c){state.difficulty=c.dataset.diff;els.diffValue.textContent=DIFFS[state.difficulty].label;els.diffChips.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("active",ch===c));markPending()}};els.neon.onclick=()=>{state.theme="neon";els.neon.classList.add("active");els.paper.classList.remove("active");els.themeValue.textContent="Neon";markPending()};els.paper.onclick=()=>{state.theme="paper";els.paper.classList.add("active");els.neon.classList.remove("active");els.themeValue.textContent="Paper";markPending()};
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h")hint();if(e.key.toLowerCase()==="u")undo();if(e.key.toLowerCase()==="n")newGame("fresh");if(e.key.toLowerCase()==="s")solveOne();if(e.key==="Escape")closeSettings()});window.addEventListener("resize",resizeCanvas);
+
+  // PWA install prompt.
+  // Android/desktop Chrome may provide a native beforeinstallprompt event, but
+  // it often appears only after the service worker is active and the page is
+  // reloaded. So we always show a helpful custom prompt unless the app is
+  // already installed or the user dismissed it.
+  let deferredInstallPrompt=null;
+  const installPromptEl=$("installPrompt"), installBtn=$("installBtn"), installDismiss=$("installDismiss"), iosSteps=$("iosSteps"), installText=$("installText"), installMenuHint=$("installMenuHint"), installTitle=$("installTitle");
+  function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true}
+  function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+  function isChromeIOS(){return /crios/i.test(navigator.userAgent)}
+  function isSecureEnough(){return location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1"}
+  function showInstallPrompt(force=false){
+    if(!installPromptEl||isStandalone())return;
+    if(!force && localStorage.getItem("arrowSlitherInstallDismissed")==="1")return;
+    installPromptEl.classList.add("show");
+    iosSteps.style.display="none";
+    installMenuHint.style.display="none";
+    installBtn.textContent="Install";
+    installTitle.textContent="Install Arrow Slither";
+    installText.textContent="Add it to your home screen for full-screen offline play.";
+
+    if(deferredInstallPrompt){
+      installBtn.disabled=false;
+      installBtn.style.opacity="1";
+      return;
+    }
+
+    if(isIOS()){
+      installBtn.textContent="OK";
+      installText.textContent=isChromeIOS() ? "iOS installs web apps from Safari." : "Install this as a full-screen Home Screen app.";
+      iosSteps.style.display="block";
+      return;
+    }
+
+    if(!isSecureEnough()){
+      installBtn.textContent="OK";
+      installText.textContent="Install prompts require HTTPS. GitHub Pages will work once published.";
+      installMenuHint.style.display="block";
+      return;
+    }
+
+    installBtn.textContent="How";
+    installMenuHint.style.display="block";
+  }
+  window.addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    showInstallPrompt(true);
+  });
+  window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;installPromptEl?.classList.remove("show");toast("Installed!")});
+  installBtn?.addEventListener("click",async()=>{
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice.catch(()=>null);
+      deferredInstallPrompt=null;
+      installPromptEl?.classList.remove("show");
+      return;
+    }
+    if(isIOS()){iosSteps.style.display="block";return}
+    installMenuHint.style.display="block";
+  });
+  installDismiss?.addEventListener("click",()=>{localStorage.setItem("arrowSlitherInstallDismissed","1");installPromptEl?.classList.remove("show")});
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",async()=>{
+      try{
+        await navigator.serviceWorker.register("./sw.js");
+        setTimeout(()=>showInstallPrompt(false),900);
+      }catch(err){
+        console.warn(err);
+        setTimeout(()=>showInstallPrompt(false),900);
+      }
+    });
+  }else{
+    setTimeout(()=>showInstallPrompt(false),900);
+  }
+
 
   randomizeSeed();if(generateLevel()){resizeCanvas();syncControls();setTimeout(()=>toast("v42: Installable PWA."),350)}else{resizeCanvas();syncControls();setTimeout(()=>toast("Tap New to generate a board.",1200),350)};
 })();
