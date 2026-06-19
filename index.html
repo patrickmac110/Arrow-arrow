@@ -44,8 +44,8 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
 .bottomBar{position:fixed;z-index:31;left:max(18px,calc(18px + env(safe-area-inset-left,0px)));right:max(18px,calc(18px + env(safe-area-inset-right,0px)));bottom:calc(16px + var(--safe-bottom));padding:0;display:flex;align-items:center;justify-content:center;gap:12px;pointer-events:none}
 .bigBtn{min-height:52px;border-radius:50%;width:52px;height:52px;background:rgba(124,134,190,.30);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 10px 28px rgba(0,0,0,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0;font-weight:800;pointer-events:auto}.bigBtn b{font-size:24px;line-height:1}.bigBtn span{display:none}.bigBtn.newLevel{width:auto;min-width:118px;border-radius:999px;padding:0 18px}.bigBtn.newLevel b{display:none}.bigBtn.newLevel span{display:inline;font-size:15px;letter-spacing:.01em}.bigBtn.primary{margin-left:0;width:auto;min-width:118px;border-radius:999px;padding:0 18px;gap:8px;flex-direction:row;background:linear-gradient(135deg,rgba(94,110,255,.92),rgba(98,134,255,.86))}.bigBtn.primary span{display:inline;font-size:17px}.bigBtn.primary b{font-size:22px}#solveBtn,#gridBtn{display:none}
 #app.paper .bigBtn,.iconBtn{background:rgba(121,88,42,.1)}#app.paper .bigBtn.primary{background:linear-gradient(180deg,#fff4d2,#f1cd77)}
-.modalBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:flex-end;justify-content:center;z-index:50}.modalBackdrop.open{display:flex}.modal{width:min(820px,100vw);max-height:88dvh;overflow:auto;border-radius:28px 28px 0 0;background:linear-gradient(180deg,#141f49,#080d24);box-shadow:0 -24px 70px rgba(0,0,0,.46);padding:0 clamp(16px,4vw,26px) 0}
-#app.paper .modal{background:linear-gradient(180deg,#fff9ea,#f3e4c9);color:#594532}.modalHeader{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;background:linear-gradient(180deg,#141f49 75%,rgba(20,31,73,0))}.modal h2{margin:0}.xBtn{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.1);font-size:24px}
+.modalBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;z-index:50;padding:calc(18px + var(--safe-top)) 14px calc(18px + var(--safe-bottom))}.modalBackdrop.open{display:flex}.modal{width:min(820px,calc(100vw - 28px));max-height:min(84dvh,820px);overflow:auto;border-radius:28px;background:linear-gradient(180deg,#141f49,#080d24);box-shadow:0 24px 80px rgba(0,0,0,.50),inset 0 0 0 1px rgba(255,255,255,.08);padding:0 clamp(16px,4vw,26px) 0}
+#app.paper .modal{background:linear-gradient(180deg,#fff9ea,#f3e4c9);color:#594532}.modalHeader{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;background:linear-gradient(180deg,#141f49 78%,rgba(20,31,73,0))}.modal h2{margin:0}.xBtn{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.1);font-size:24px}
 #app.paper .modalHeader{background:linear-gradient(180deg,#fff9ea 75%,rgba(255,249,234,0))}.settingsGrid{display:grid;grid-template-columns:1fr;gap:12px;padding-top:4px}@media(min-width:650px){.settingsGrid{grid-template-columns:1fr 1fr}}.field{background:rgba(255,255,255,.07);border-radius:18px;padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.field label{display:flex;justify-content:space-between;gap:12px;color:#c7d2ff;font-size:13px;margin-bottom:8px}#app.paper .field label{color:#7d613e}.field input,.field select{width:100%;height:42px;border-radius:13px;border:0;padding:0 12px;background:rgba(0,0,0,.2);color:inherit}.field input[type=range]{padding:0;accent-color:#5df4ff}.field input[type=checkbox]{width:22px;height:22px;accent-color:#57f3ff}.mini{margin:0;color:#9facdc;font-size:12px;line-height:1.35}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:40px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.09);font-weight:800}.chip.active{background:linear-gradient(180deg,rgba(87,243,255,.34),rgba(87,122,255,.25))}
 .note{font-size:13px;line-height:1.45;color:#aeb9e9}.winOverlay{position:absolute;inset:0;z-index:40;display:none;place-items:center;background:radial-gradient(circle at center,rgba(87,243,255,.18),rgba(3,5,14,.7));backdrop-filter:blur(6px)}.winOverlay.show{display:grid}.winCard{width:min(86vw,380px);border-radius:28px;text-align:center;padding:24px;background:rgba(15,22,54,.9);box-shadow:0 20px 70px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.14)}.winCard h2{margin:0 0 8px;font-size:30px}.winCard.danger h2{color:#ff5d83}.winCard p{margin:0 0 16px;color:#b9c7ff}.winButtons{display:flex;gap:10px;justify-content:center}.winButtons button{min-height:46px;padding:0 16px;border-radius:15px;background:rgba(255,255,255,.1);font-weight:900}.winButtons button:first-child{background:#57f3ff;color:#052044}
@@ -57,6 +57,13 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
 .installCopy{min-width:0;flex:1}.installCopy b{display:block;font-size:14px}.installCopy span{display:block;font-size:12px;opacity:.78;line-height:1.35}
 .installActions{display:flex;gap:8px}.installActions button{height:40px;border-radius:999px;padding:0 12px;background:rgba(255,255,255,.12);font-weight:900}.installActions .primaryInstall{background:linear-gradient(135deg,rgba(94,110,255,.95),rgba(98,134,255,.88))}
 #app.paper .installPrompt{background:rgba(255,248,230,.95);color:#594532}.iosSteps{font-size:12px;opacity:.78;margin-top:4px}
+
+
+@media(max-height:720px){
+  .modalBackdrop{align-items:center;padding:10px 12px calc(10px + var(--safe-bottom))}
+  .modal{max-height:calc(100dvh - 20px - var(--safe-bottom))}
+  .modalHeader{padding-top:12px}
+}
 
 </style>
 </head>
@@ -989,40 +996,6 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   function markPending(){els.apply.querySelector("span").textContent="Apply*"}
   els.levelInput.oninput=()=>{els.levelValue.textContent=els.levelInput.value;markPending()};els.sizeSelect.onchange=()=>{els.sizeValue.textContent=els.sizeSelect.value==="auto"?"Auto":els.sizeSelect.value.replace("x"," × ");markPending()};els.shapeSelect.onchange=()=>{els.shapeValue.textContent=SHAPES[els.shapeSelect.value];markPending()};els.twistInput.oninput=()=>{els.twistValue.textContent=["Straight","Gentle","Balanced","Curvy","Wild"][Number(els.twistInput.value)-1];markPending()};els.tangleInput.oninput=()=>{els.tangleValue.textContent=["Open","Mild","Layered","Entangled","Chaos"][Number(els.tangleInput.value)-1];markPending()};els.dragInput.onchange=()=>{els.dragValue.textContent=els.dragInput.checked?"On":"Off";markPending()};els.diffChips.onclick=e=>{const c=e.target.closest(".chip[data-diff]");if(c){state.difficulty=c.dataset.diff;els.diffValue.textContent=DIFFS[state.difficulty].label;els.diffChips.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("active",ch===c));markPending()}};els.neon.onclick=()=>{state.theme="neon";els.neon.classList.add("active");els.paper.classList.remove("active");els.themeValue.textContent="Neon";markPending()};els.paper.onclick=()=>{state.theme="paper";els.paper.classList.add("active");els.neon.classList.remove("active");els.themeValue.textContent="Paper";markPending()};
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h")hint();if(e.key.toLowerCase()==="u")undo();if(e.key.toLowerCase()==="n")newGame("fresh");if(e.key.toLowerCase()==="s")solveOne();if(e.key==="Escape")closeSettings()});window.addEventListener("resize",resizeCanvas);
-
-
-  // PWA install prompt: Android supports beforeinstallprompt; iOS requires
-  // manual Share -> Add to Home Screen, so we show platform-specific guidance.
-  let deferredInstallPrompt=null;
-  const installPromptEl=$("installPrompt"), installBtn=$("installBtn"), installDismiss=$("installDismiss"), iosSteps=$("iosSteps"), installText=$("installText");
-  function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true}
-  function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
-  function maybeShowInstallPrompt(force=false){
-    if(!installPromptEl||isStandalone())return;
-    if(!force && localStorage.getItem("arrowSlitherInstallDismissed")==="1")return;
-    if(deferredInstallPrompt || isIOS()){
-      if(isIOS()&&!deferredInstallPrompt){iosSteps.style.display="block";installBtn.textContent="How";installText.textContent="Install this as a full-screen Home Screen app."}
-      else{iosSteps.style.display="none";installBtn.textContent="Install";installText.textContent="Add it to your home screen for full-screen offline play."}
-      installPromptEl.classList.add("show");
-    }
-  }
-  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;setTimeout(()=>maybeShowInstallPrompt(),900)});
-  window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;installPromptEl?.classList.remove("show");toast("Installed!")});
-  installBtn?.addEventListener("click",async()=>{
-    if(isIOS()&&!deferredInstallPrompt){iosSteps.style.display="block";return}
-    if(!deferredInstallPrompt){maybeShowInstallPrompt(true);return}
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice.catch(()=>null);
-    deferredInstallPrompt=null;
-    installPromptEl?.classList.remove("show");
-  });
-  installDismiss?.addEventListener("click",()=>{localStorage.setItem("arrowSlitherInstallDismissed","1");installPromptEl?.classList.remove("show")});
-  setTimeout(()=>{if(isIOS())maybeShowInstallPrompt()},1400);
-
-  if("serviceWorker" in navigator){
-    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
-  }
-
 
   randomizeSeed();if(generateLevel()){resizeCanvas();syncControls();setTimeout(()=>toast("v42: Installable PWA."),350)}else{resizeCanvas();syncControls();setTimeout(()=>toast("Tap New to generate a board.",1200),350)};
 })();
