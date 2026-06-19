@@ -1,12 +1,14 @@
-const CACHE_NAME = "arrow-slither-escape-v1";
+const CACHE_NAME = "arrow-slither-escape-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/maskable-512.png",
-  "./icons/apple-touch-icon.png"
+  "./sw.js",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./maskable-512.png",
+  "./apple-touch-icon.png",
+  "./icon-512.jpg"
 ];
 
 self.addEventListener("install", event => {

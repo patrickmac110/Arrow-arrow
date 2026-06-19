@@ -13,9 +13,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="manifest" href="./manifest.webmanifest"/>
-<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png"/>
-<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png"/>
-<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"/>
 
 <style>
 :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--ink:#f7fbff}
@@ -45,27 +45,22 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
 .bigBtn{min-height:52px;border-radius:50%;width:52px;height:52px;background:rgba(124,134,190,.30);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 10px 28px rgba(0,0,0,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0;font-weight:800;pointer-events:auto}.bigBtn b{font-size:24px;line-height:1}.bigBtn span{display:none}.bigBtn.newLevel{width:auto;min-width:118px;border-radius:999px;padding:0 18px}.bigBtn.newLevel b{display:none}.bigBtn.newLevel span{display:inline;font-size:15px;letter-spacing:.01em}.bigBtn.primary{margin-left:0;width:auto;min-width:118px;border-radius:999px;padding:0 18px;gap:8px;flex-direction:row;background:linear-gradient(135deg,rgba(94,110,255,.92),rgba(98,134,255,.86))}.bigBtn.primary span{display:inline;font-size:17px}.bigBtn.primary b{font-size:22px}#solveBtn,#gridBtn{display:none}
 #app.paper .bigBtn,.iconBtn{background:rgba(121,88,42,.1)}#app.paper .bigBtn.primary{background:linear-gradient(180deg,#fff4d2,#f1cd77)}
 .modalBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;z-index:50;padding:calc(18px + var(--safe-top)) 14px calc(18px + var(--safe-bottom))}.modalBackdrop.open{display:flex}.modal{width:min(820px,calc(100vw - 28px));max-height:min(84dvh,820px);overflow:auto;border-radius:28px;background:linear-gradient(180deg,#141f49,#080d24);box-shadow:0 24px 80px rgba(0,0,0,.50),inset 0 0 0 1px rgba(255,255,255,.08);padding:0 clamp(16px,4vw,26px) 0}
-#app.paper .modal{background:linear-gradient(180deg,#fff9ea,#f3e4c9);color:#594532}.modalHeader{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;background:linear-gradient(180deg,#141f49 78%,rgba(20,31,73,0))}.modal h2{margin:0}.xBtn{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.1);font-size:24px}
-#app.paper .modalHeader{background:linear-gradient(180deg,#fff9ea 75%,rgba(255,249,234,0))}.settingsGrid{display:grid;grid-template-columns:1fr;gap:12px;padding-top:4px}@media(min-width:650px){.settingsGrid{grid-template-columns:1fr 1fr}}.field{background:rgba(255,255,255,.07);border-radius:18px;padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.field label{display:flex;justify-content:space-between;gap:12px;color:#c7d2ff;font-size:13px;margin-bottom:8px}#app.paper .field label{color:#7d613e}.field input,.field select{width:100%;height:42px;border-radius:13px;border:0;padding:0 12px;background:rgba(0,0,0,.2);color:inherit}.field input[type=range]{padding:0;accent-color:#5df4ff}.field input[type=checkbox]{width:22px;height:22px;accent-color:#57f3ff}.mini{margin:0;color:#9facdc;font-size:12px;line-height:1.35}
+#app.paper .modal{background:linear-gradient(180deg,#fff9ea,#f3e4c9);color:#594532}.modalHeader{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;background:linear-gradient(180deg,#141f49 75%,rgba(20,31,73,0))}.modal h2{margin:0}.xBtn{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.1);font-size:24px}
+#app.paper .modalHeader{background:linear-gradient(180deg,#fff9ea 78%,rgba(255,249,234,0))}.settingsGrid{display:grid;grid-template-columns:1fr;gap:12px;padding-top:4px}@media(min-width:650px){.settingsGrid{grid-template-columns:1fr 1fr}}.field{background:rgba(255,255,255,.07);border-radius:18px;padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.field label{display:flex;justify-content:space-between;gap:12px;color:#c7d2ff;font-size:13px;margin-bottom:8px}#app.paper .field label{color:#7d613e}.field input,.field select{width:100%;height:42px;border-radius:13px;border:0;padding:0 12px;background:rgba(0,0,0,.2);color:inherit}.field input[type=range]{padding:0;accent-color:#5df4ff}.field input[type=checkbox]{width:22px;height:22px;accent-color:#57f3ff}.mini{margin:0;color:#9facdc;font-size:12px;line-height:1.35}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:40px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.09);font-weight:800}.chip.active{background:linear-gradient(180deg,rgba(87,243,255,.34),rgba(87,122,255,.25))}
 .note{font-size:13px;line-height:1.45;color:#aeb9e9}.winOverlay{position:absolute;inset:0;z-index:40;display:none;place-items:center;background:radial-gradient(circle at center,rgba(87,243,255,.18),rgba(3,5,14,.7));backdrop-filter:blur(6px)}.winOverlay.show{display:grid}.winCard{width:min(86vw,380px);border-radius:28px;text-align:center;padding:24px;background:rgba(15,22,54,.9);box-shadow:0 20px 70px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.14)}.winCard h2{margin:0 0 8px;font-size:30px}.winCard.danger h2{color:#ff5d83}.winCard p{margin:0 0 16px;color:#b9c7ff}.winButtons{display:flex;gap:10px;justify-content:center}.winButtons button{min-height:46px;padding:0 16px;border-radius:15px;background:rgba(255,255,255,.1);font-weight:900}.winButtons button:first-child{background:#57f3ff;color:#052044}
 @media(max-width:520px){.brandText{display:none}.iconBtn{width:50px;height:50px}.pill{display:none;min-width:84px;font-size:20px;padding:8px 12px}.stageWrap{padding:0}.stageCard{border-radius:0;max-height:none}.bigBtn{width:50px;height:50px;min-height:50px;border-radius:50%}.bigBtn.newLevel{width:auto;min-width:112px;border-radius:999px}.bigBtn.primary{width:auto;min-width:112px;border-radius:999px}.hud{top:calc(78px + var(--safe-top))}}
+
+
+
 
 .installPrompt{position:fixed;left:50%;bottom:calc(86px + var(--safe-bottom));transform:translateX(-50%) translateY(18px);z-index:49;width:min(92vw,430px);padding:14px;border-radius:24px;background:rgba(8,13,36,.96);backdrop-filter:blur(18px);box-shadow:0 20px 70px rgba(0,0,0,.46),inset 0 0 0 1px rgba(255,255,255,.14);display:none;gap:12px;align-items:center}
 .installPrompt.show{display:flex;animation:installIn .18s ease forwards}@keyframes installIn{to{transform:translateX(-50%) translateY(0)}}
 .installIcon{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);flex:0 0 auto}
 .installCopy{min-width:0;flex:1}.installCopy b{display:block;font-size:14px}.installCopy span{display:block;font-size:12px;opacity:.82;line-height:1.35}
 .installActions{display:flex;gap:8px}.installActions button{height:40px;border-radius:999px;padding:0 12px;background:rgba(255,255,255,.12);font-weight:900}.installActions .primaryInstall{background:linear-gradient(135deg,rgba(94,110,255,.95),rgba(98,134,255,.88))}
-#app.paper .installPrompt{background:rgba(255,248,230,.97);color:#594532}.iosSteps{font-size:12px;opacity:.82;margin-top:4px;line-height:1.35}
-.installMenuHint{font-size:12px;opacity:.82;margin-top:4px;line-height:1.35}
+#app.paper .installPrompt{background:rgba(255,248,230,.97);color:#594532}.iosSteps,.installMenuHint{font-size:12px;opacity:.82;margin-top:4px;line-height:1.35}
 @media(max-width:430px){.installPrompt{bottom:calc(78px + var(--safe-bottom));width:calc(100vw - 22px);padding:12px}.installActions button{padding:0 10px}.installIcon{width:44px;height:44px}}
-
-
-@media(max-height:720px){
-  .modalBackdrop{align-items:center;padding:10px 12px calc(10px + var(--safe-bottom))}
-  .modal{max-height:calc(100dvh - 20px - var(--safe-bottom))}
-  .modalHeader{padding-top:12px}
-}
 
 </style>
 </head>
@@ -87,13 +82,14 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   </footer>
 </div>
 
+
 <div class="installPrompt" id="installPrompt" role="dialog" aria-live="polite">
-  <img class="installIcon" src="./icons/icon-192.png" alt="">
+  <div class="installIcon" aria-hidden="true" style="display:grid;place-items:center;background:linear-gradient(180deg,#111a42,#070d25);font-size:28px">↗</div>
   <div class="installCopy">
     <b id="installTitle">Install Arrow Slither</b>
     <span id="installText">Add it to your home screen for full-screen offline play.</span>
     <div class="iosSteps" id="iosSteps" style="display:none">iPhone/iPad: open in Safari, tap Share, then “Add to Home Screen.”</div>
-    <div class="installMenuHint" id="installMenuHint" style="display:none">Browser did not expose a native install button yet. Use the browser menu and choose “Add to Home screen” or “Install app.”</div>
+    <div class="installMenuHint" id="installMenuHint" style="display:none">Use the browser menu and choose “Install app” or “Add to Home screen.”</div>
   </div>
   <div class="installActions">
     <button id="installDismiss" aria-label="Dismiss install prompt">×</button>
@@ -1000,12 +996,12 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   els.levelInput.oninput=()=>{els.levelValue.textContent=els.levelInput.value;markPending()};els.sizeSelect.onchange=()=>{els.sizeValue.textContent=els.sizeSelect.value==="auto"?"Auto":els.sizeSelect.value.replace("x"," × ");markPending()};els.shapeSelect.onchange=()=>{els.shapeValue.textContent=SHAPES[els.shapeSelect.value];markPending()};els.twistInput.oninput=()=>{els.twistValue.textContent=["Straight","Gentle","Balanced","Curvy","Wild"][Number(els.twistInput.value)-1];markPending()};els.tangleInput.oninput=()=>{els.tangleValue.textContent=["Open","Mild","Layered","Entangled","Chaos"][Number(els.tangleInput.value)-1];markPending()};els.dragInput.onchange=()=>{els.dragValue.textContent=els.dragInput.checked?"On":"Off";markPending()};els.diffChips.onclick=e=>{const c=e.target.closest(".chip[data-diff]");if(c){state.difficulty=c.dataset.diff;els.diffValue.textContent=DIFFS[state.difficulty].label;els.diffChips.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("active",ch===c));markPending()}};els.neon.onclick=()=>{state.theme="neon";els.neon.classList.add("active");els.paper.classList.remove("active");els.themeValue.textContent="Neon";markPending()};els.paper.onclick=()=>{state.theme="paper";els.paper.classList.add("active");els.neon.classList.remove("active");els.themeValue.textContent="Paper";markPending()};
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h")hint();if(e.key.toLowerCase()==="u")undo();if(e.key.toLowerCase()==="n")newGame("fresh");if(e.key.toLowerCase()==="s")solveOne();if(e.key==="Escape")closeSettings()});window.addEventListener("resize",resizeCanvas);
 
-  // PWA install prompt.
-  // Android/desktop Chrome may provide a native beforeinstallprompt event, but
-  // it often appears only after the service worker is active and the page is
-  // reloaded. So we always show a helpful custom prompt unless the app is
-  // already installed or the user dismissed it.
+
+  // Reliable PWA install prompt. Native install is only available on some
+  // browsers after HTTPS + manifest + service worker are active, so this custom
+  // prompt always appears for non-installed users and falls back to instructions.
   let deferredInstallPrompt=null;
+  const INSTALL_DISMISS_KEY="arrowSlitherInstallDismissedV3";
   const installPromptEl=$("installPrompt"), installBtn=$("installBtn"), installDismiss=$("installDismiss"), iosSteps=$("iosSteps"), installText=$("installText"), installMenuHint=$("installMenuHint"), installTitle=$("installTitle");
   function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true}
   function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
@@ -1013,42 +1009,30 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
   function isSecureEnough(){return location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1"}
   function showInstallPrompt(force=false){
     if(!installPromptEl||isStandalone())return;
-    if(!force && localStorage.getItem("arrowSlitherInstallDismissed")==="1")return;
+    if(!force && localStorage.getItem(INSTALL_DISMISS_KEY)==="1")return;
     installPromptEl.classList.add("show");
     iosSteps.style.display="none";
     installMenuHint.style.display="none";
     installBtn.textContent="Install";
     installTitle.textContent="Install Arrow Slither";
     installText.textContent="Add it to your home screen for full-screen offline play.";
-
-    if(deferredInstallPrompt){
-      installBtn.disabled=false;
-      installBtn.style.opacity="1";
-      return;
-    }
-
+    if(deferredInstallPrompt)return;
     if(isIOS()){
       installBtn.textContent="OK";
       installText.textContent=isChromeIOS() ? "iOS installs web apps from Safari." : "Install this as a full-screen Home Screen app.";
       iosSteps.style.display="block";
       return;
     }
-
     if(!isSecureEnough()){
       installBtn.textContent="OK";
       installText.textContent="Install prompts require HTTPS. GitHub Pages will work once published.";
       installMenuHint.style.display="block";
       return;
     }
-
     installBtn.textContent="How";
     installMenuHint.style.display="block";
   }
-  window.addEventListener("beforeinstallprompt",e=>{
-    e.preventDefault();
-    deferredInstallPrompt=e;
-    showInstallPrompt(true);
-  });
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;showInstallPrompt(true)});
   window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;installPromptEl?.classList.remove("show");toast("Installed!")});
   installBtn?.addEventListener("click",async()=>{
     if(deferredInstallPrompt){
@@ -1058,20 +1042,14 @@ button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
       installPromptEl?.classList.remove("show");
       return;
     }
-    if(isIOS()){iosSteps.style.display="block";return}
-    installMenuHint.style.display="block";
+    if(isIOS())iosSteps.style.display="block";
+    else installMenuHint.style.display="block";
   });
-  installDismiss?.addEventListener("click",()=>{localStorage.setItem("arrowSlitherInstallDismissed","1");installPromptEl?.classList.remove("show")});
-
+  installDismiss?.addEventListener("click",()=>{localStorage.setItem(INSTALL_DISMISS_KEY,"1");installPromptEl?.classList.remove("show")});
   if("serviceWorker" in navigator){
     window.addEventListener("load",async()=>{
-      try{
-        await navigator.serviceWorker.register("./sw.js");
-        setTimeout(()=>showInstallPrompt(false),900);
-      }catch(err){
-        console.warn(err);
-        setTimeout(()=>showInstallPrompt(false),900);
-      }
+      try{await navigator.serviceWorker.register("./sw.js")}catch(err){console.warn(err)}
+      setTimeout(()=>showInstallPrompt(false),900);
     });
   }else{
     setTimeout(()=>showInstallPrompt(false),900);
