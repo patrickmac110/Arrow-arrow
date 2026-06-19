@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Arrow Slither Escape</title>
+<meta name="theme-color" content="#09122d"/>
+<meta name="background-color" content="#030711"/>
+<meta name="description" content="A twisty arrow escape puzzle with slithering arrows, blob boards, hints, lives, and offline play."/>
+<meta name="application-name" content="Arrow Slither Escape"/>
+<meta name="apple-mobile-web-app-title" content="Arrow Slither"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="./manifest.webmanifest"/>
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png"/>
+
+<style>
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--ink:#f7fbff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;background:#030711;color:var(--ink);user-select:none}
+button,select,input{font:inherit}button{border:0;color:inherit;cursor:pointer}
+#app{height:100dvh;width:100vw;position:relative;overflow:hidden;display:block;background:radial-gradient(circle at 30% -10%,rgba(94,92,255,.45),transparent 35%),radial-gradient(circle at 90% 10%,rgba(0,235,255,.18),transparent 30%),linear-gradient(180deg,#09122d,#050713)}
+#app.paper{background:linear-gradient(180deg,#fbf5e7,#eadbbd);color:#594532}
+.topbar{position:fixed;top:0;left:0;right:0;padding:calc(18px + var(--safe-top)) max(22px,calc(22px + env(safe-area-inset-right,0px))) 0 max(22px,calc(22px + env(safe-area-inset-left,0px)));display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:10px;z-index:30;pointer-events:none}
+.brand{display:none;gap:10px;align-items:center;min-width:0}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);font-weight:1000}
+#app.paper .logo{background:rgba(120,90,45,.12)}.brandText{min-width:0}.brandText b{display:block;font-size:15px;white-space:nowrap}.brandText span{display:block;font-size:12px;color:#a9b6e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#app.paper .brandText span{color:#8c714d}
+.pill{display:none;min-width:96px;justify-self:center;text-align:center;border-radius:999px;padding:8px 16px;background:rgba(20,27,61,.56);backdrop-filter:blur(16px);font-weight:1000;font-size:21px;box-shadow:0 12px 32px rgba(0,0,0,.23),inset 0 0 0 1px rgba(255,255,255,.12);pointer-events:auto}
+.pill small{display:block;font-size:10px;letter-spacing:.16em;opacity:.75}.topActions{position:fixed;right:max(20px,calc(20px + env(safe-area-inset-right,0px)));top:calc(18px + var(--safe-top));justify-self:auto;display:flex;gap:10px;padding-right:0;pointer-events:auto;z-index:34}.topActions #themeBtn{display:none}.iconBtn{width:52px;height:52px;border-radius:50%;background:rgba(124,134,190,.30);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 10px 28px rgba(0,0,0,.22);font-size:22px}
+#app.paper .pill{background:#f1ce78;color:#735314}.stageWrap{position:absolute;inset:0;display:block;min-height:0;padding:0}
+.hud{position:fixed;top:calc(76px + var(--safe-top));left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;padding:6px 12px;border-radius:999px;background:rgba(4,8,24,.34);backdrop-filter:blur(12px);font-size:12px;z-index:29;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);pointer-events:none}#app.paper .hud{background:rgba(255,248,230,.78);color:#755a36}.hearts{color:#ff4f7b}.sep{opacity:.4}
+.stageCard{position:absolute;inset:0;overflow:hidden;width:100vw;height:100dvh;max-height:none;min-height:100dvh;border-radius:0;background:rgba(14,23,58,.30);box-shadow:none}#app.paper .stageCard{background:rgba(255,250,238,.94);box-shadow:0 20px 50px rgba(91,64,26,.15),inset 0 0 0 1px rgba(108,78,38,.1)}
+#boardCanvas{width:100%;height:100%;display:block;touch-action:none}
+.toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%) translateY(20px);opacity:0;z-index:30;padding:10px 14px;border-radius:999px;background:rgba(7,11,28,.82);backdrop-filter:blur(12px);font-size:13px;white-space:nowrap;transition:.18s ease;box-shadow:0 10px 32px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.12)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loadingOverlay{position:absolute;inset:0;z-index:38;display:none;place-items:center;background:rgba(3,7,20,.72);backdrop-filter:blur(8px)}
+.loadingOverlay.show{display:grid}
+.loadingCard{width:min(84vw,360px);border-radius:26px;text-align:center;padding:24px;background:rgba(13,21,52,.92);box-shadow:0 20px 70px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.14)}
+.loadingCard h2{margin:12px 0 6px;font-size:22px}
+.loadingCard p{margin:0;color:#b9c7ff;font-size:13px;line-height:1.4}
+.spinner{width:44px;height:44px;margin:0 auto;border-radius:50%;border:4px solid rgba(255,255,255,.18);border-top-color:#57f3ff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bottomBar{position:fixed;z-index:31;left:max(18px,calc(18px + env(safe-area-inset-left,0px)));right:max(18px,calc(18px + env(safe-area-inset-right,0px)));bottom:calc(16px + var(--safe-bottom));padding:0;display:flex;align-items:center;justify-content:center;gap:12px;pointer-events:none}
+.bigBtn{min-height:52px;border-radius:50%;width:52px;height:52px;background:rgba(124,134,190,.30);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 10px 28px rgba(0,0,0,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0;font-weight:800;pointer-events:auto}.bigBtn b{font-size:24px;line-height:1}.bigBtn span{display:none}.bigBtn.newLevel{width:auto;min-width:118px;border-radius:999px;padding:0 18px}.bigBtn.newLevel b{display:none}.bigBtn.newLevel span{display:inline;font-size:15px;letter-spacing:.01em}.bigBtn.primary{margin-left:0;width:auto;min-width:118px;border-radius:999px;padding:0 18px;gap:8px;flex-direction:row;background:linear-gradient(135deg,rgba(94,110,255,.92),rgba(98,134,255,.86))}.bigBtn.primary span{display:inline;font-size:17px}.bigBtn.primary b{font-size:22px}#solveBtn,#gridBtn{display:none}
+#app.paper .bigBtn,.iconBtn{background:rgba(121,88,42,.1)}#app.paper .bigBtn.primary{background:linear-gradient(180deg,#fff4d2,#f1cd77)}
+.modalBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:flex-end;justify-content:center;z-index:50}.modalBackdrop.open{display:flex}.modal{width:min(820px,100vw);max-height:88dvh;overflow:auto;border-radius:28px 28px 0 0;background:linear-gradient(180deg,#141f49,#080d24);box-shadow:0 -24px 70px rgba(0,0,0,.46);padding:0 clamp(16px,4vw,26px) 0}
+#app.paper .modal{background:linear-gradient(180deg,#fff9ea,#f3e4c9);color:#594532}.modalHeader{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;background:linear-gradient(180deg,#141f49 75%,rgba(20,31,73,0))}.modal h2{margin:0}.xBtn{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.1);font-size:24px}
+#app.paper .modalHeader{background:linear-gradient(180deg,#fff9ea 75%,rgba(255,249,234,0))}.settingsGrid{display:grid;grid-template-columns:1fr;gap:12px;padding-top:4px}@media(min-width:650px){.settingsGrid{grid-template-columns:1fr 1fr}}.field{background:rgba(255,255,255,.07);border-radius:18px;padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.field label{display:flex;justify-content:space-between;gap:12px;color:#c7d2ff;font-size:13px;margin-bottom:8px}#app.paper .field label{color:#7d613e}.field input,.field select{width:100%;height:42px;border-radius:13px;border:0;padding:0 12px;background:rgba(0,0,0,.2);color:inherit}.field input[type=range]{padding:0;accent-color:#5df4ff}.field input[type=checkbox]{width:22px;height:22px;accent-color:#57f3ff}.mini{margin:0;color:#9facdc;font-size:12px;line-height:1.35}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:40px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.09);font-weight:800}.chip.active{background:linear-gradient(180deg,rgba(87,243,255,.34),rgba(87,122,255,.25))}
+.note{font-size:13px;line-height:1.45;color:#aeb9e9}.winOverlay{position:absolute;inset:0;z-index:40;display:none;place-items:center;background:radial-gradient(circle at center,rgba(87,243,255,.18),rgba(3,5,14,.7));backdrop-filter:blur(6px)}.winOverlay.show{display:grid}.winCard{width:min(86vw,380px);border-radius:28px;text-align:center;padding:24px;background:rgba(15,22,54,.9);box-shadow:0 20px 70px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.14)}.winCard h2{margin:0 0 8px;font-size:30px}.winCard.danger h2{color:#ff5d83}.winCard p{margin:0 0 16px;color:#b9c7ff}.winButtons{display:flex;gap:10px;justify-content:center}.winButtons button{min-height:46px;padding:0 16px;border-radius:15px;background:rgba(255,255,255,.1);font-weight:900}.winButtons button:first-child{background:#57f3ff;color:#052044}
+@media(max-width:520px){.brandText{display:none}.iconBtn{width:50px;height:50px}.pill{display:none;min-width:84px;font-size:20px;padding:8px 12px}.stageWrap{padding:0}.stageCard{border-radius:0;max-height:none}.bigBtn{width:50px;height:50px;min-height:50px;border-radius:50%}.bigBtn.newLevel{width:auto;min-width:112px;border-radius:999px}.bigBtn.primary{width:auto;min-width:112px;border-radius:999px}.hud{top:calc(78px + var(--safe-top))}}
+
+.installPrompt{position:fixed;left:50%;bottom:calc(86px + var(--safe-bottom));transform:translateX(-50%) translateY(18px);z-index:45;width:min(92vw,420px);padding:14px;border-radius:24px;background:rgba(8,13,36,.94);backdrop-filter:blur(18px);box-shadow:0 20px 70px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.13);display:none;gap:12px;align-items:center}
+.installPrompt.show{display:flex;animation:installIn .18s ease forwards}@keyframes installIn{to{transform:translateX(-50%) translateY(0)}}
+.installIcon{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.installCopy{min-width:0;flex:1}.installCopy b{display:block;font-size:14px}.installCopy span{display:block;font-size:12px;opacity:.78;line-height:1.35}
+.installActions{display:flex;gap:8px}.installActions button{height:40px;border-radius:999px;padding:0 12px;background:rgba(255,255,255,.12);font-weight:900}.installActions .primaryInstall{background:linear-gradient(135deg,rgba(94,110,255,.95),rgba(98,134,255,.88))}
+#app.paper .installPrompt{background:rgba(255,248,230,.95);color:#594532}.iosSteps{font-size:12px;opacity:.78;margin-top:4px}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">↗</div><div class="brandText"><b>Arrow Slither Escape</b><span id="subTitle">overlapping ease-in exits</span></div></div>
+    <div class="pill"><small>LEVEL</small><span id="levelLabel">1</span></div>
+    <div class="topActions"><button class="iconBtn" id="themeBtn" aria-label="Theme">☀</button><button class="iconBtn" id="settingsBtn" aria-label="Settings">⚙</button></div>
+  </header>
+  <div class="hud"><span class="hearts" id="hearts">♥♥♥♥♥</span><span class="sep">•</span><span><b id="leftCount">0</b> left</span><span class="sep">•</span><span><b id="moveCount">0</b> moves</span></div>
+  <main class="stageWrap"><section class="stageCard" id="stageCard"><canvas id="boardCanvas"></canvas><div class="toast" id="toast"></div><div class="loadingOverlay" id="loadingOverlay"><div class="loadingCard"><div class="spinner"></div><h2>Generating level…</h2><p id="loadingText">Building a solvable tangled board.</p></div></div><div class="winOverlay" id="winOverlay"><div class="winCard"><h2>Cleared!</h2><p id="winStats">Nice order.</p><div class="winButtons"><button id="nextBtn">Next level</button><button id="replayBtn">Replay</button></div></div></div><div class="winOverlay" id="gameOverOverlay"><div class="winCard danger"><h2>Out of lives</h2><p id="gameOverStats">Restart this level and try a cleaner solve order.</p><div class="winButtons"><button id="restartBtn">Restart level</button></div></div></div></section></main>
+  <footer class="bottomBar">
+    <button class="bigBtn newLevel" id="newBtn"><b></b><span>New Level</span></button>
+    <button class="bigBtn" id="undoBtn" aria-label="Undo"><b>↶</b><span>Undo</span></button>
+    <button class="bigBtn primary" id="hintBtn"><b>💡</b><span>Hint</span></button>
+    <button class="bigBtn" id="solveBtn" style="display:none"><b>▶</b><span>Solve 1</span></button>
+    <button class="bigBtn" id="gridBtn" style="display:none"><b>▦</b><span>Grid</span></button>
+  </footer>
+</div>
+
+<div class="installPrompt" id="installPrompt" role="dialog" aria-live="polite">
+  <img class="installIcon" src="./icons/icon-192.png" alt="">
+  <div class="installCopy">
+    <b id="installTitle">Install Arrow Slither</b>
+    <span id="installText">Add it to your home screen for full-screen offline play.</span>
+    <div class="iosSteps" id="iosSteps" style="display:none">iPhone/iPad: tap Share, then “Add to Home Screen.”</div>
+  </div>
+  <div class="installActions">
+    <button id="installDismiss" aria-label="Dismiss install prompt">×</button>
+    <button class="primaryInstall" id="installBtn">Install</button>
+  </div>
+</div>
+
+<div class="modalBackdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modalHeader"><h2>Game settings</h2><button class="xBtn" id="closeSettings">×</button></div>
+    <input id="levelInput" type="hidden" value="1"><b id="levelValue" style="display:none">1</b><select id="sizeSelect" style="display:none"><option value="auto" selected>By difficulty</option></select><b id="sizeValue" style="display:none">By difficulty</b>
+    <div class="settingsGrid">
+      <div class="field"><label><span>Difficulty</span><b id="difficultyValue">Medium</b></label><div class="chips" id="difficultyChips"><button class="chip" data-diff="cozy">Easy</button><button class="chip active" data-diff="normal">Medium</button><button class="chip" data-diff="challenge">Hard</button><button class="chip" data-diff="chaos">Super Hard</button></div></div>
+      <div class="field"><label><span>Board shape</span><b id="shapeValue">Mixed</b></label><select id="shapeSelect"><option value="mixed">Random: rectangle or soft blob</option><option value="rectangle">Rectangle</option><option value="blob">Soft blob</option></select></div>
+      <div class="field"><label><span>Twistiness</span><b id="twistValue">Twisty</b></label><input id="twistInput" type="range" min="1" max="5" value="4"></div>
+      <div class="field"><label><span>Tangle bias</span><b id="tangleValue">High</b></label><input id="tangleInput" type="range" min="1" max="5" value="4"></div>
+      <div class="field"><label><span>Drag arrows out</span><b id="dragValue">Off</b></label><input id="dragInput" type="checkbox"></div>
+      <div class="field"><label><span>Look</span><b id="themeValue">Neon</b></label><div class="chips"><button class="chip active" id="neonChip">Neon</button><button class="chip" id="paperChip">Paper</button></div></div>
+    </div>
+    <p class="note">Drag mode is off by default: tap an arrow to remove it, or pan with one finger and pinch with two. If Drag arrows out is enabled, one finger controls arrows and panning requires two fingers. Difficulty controls randomized size range, lives, and hints. Levels are randomized automatically; there is no manual seed.</p>
+    <div class="settingsFooter"><button class="bigBtn primary" id="applySettings" style="flex:1"><b>✓</b><span>Apply</span></button><button class="bigBtn" id="randomLevel" style="display:none"><b>🎲</b><span>Random</span></button></div>
+  </div>
+</div>
+<script>
+(() => {
+  "use strict";
+
+  const DIRS={R:{dx:1,dy:0,label:"right"},D:{dx:0,dy:1,label:"down"},L:{dx:-1,dy:0,label:"left"},U:{dx:0,dy:-1,label:"up"}};
+  const DIR_KEYS=Object.keys(DIRS);
+  const COLORS=["#1ee8ff","#ff36d4","#16dc37","#fff02c","#687cff","#ff356f","#25ff9a","#b777ff","#ffb22e","#00b7ff","#ff67f1","#b4ff2a"];
+  const PAPER=["#5f4634","#b74b43","#3980a3","#617a37","#8a6530","#77559b","#2f7d71","#a55d25","#45608c","#7c5344"];
+  const DIFFS={cozy:{label:"Easy",hearts:6,hints:10,sizes:[[8,10],[10,12],[12,15]]},normal:{label:"Medium",hearts:5,hints:8,sizes:[[14,18],[16,22],[18,24],[20,28]]},challenge:{label:"Hard",hearts:4,hints:6,sizes:[[22,30],[24,34],[28,40],[32,44]]},chaos:{label:"Super Hard",hearts:3,hints:5,sizes:[[32,44],[36,50],[40,56],[44,60]]}};
+  const SHAPES={mixed:"Mixed",rectangle:"Rectangle",blob:"Soft blob"};
+  const $=id=>document.getElementById(id);
+  const els={app:$("app"),card:$("stageCard"),canvas:$("boardCanvas"),toast:$("toast"),loading:$("loadingOverlay"),loadingText:$("loadingText"),level:$("levelLabel"),left:$("leftCount"),moves:$("moveCount"),hearts:$("hearts"),themeBtn:$("themeBtn"),settingsBtn:$("settingsBtn"),modal:$("modalBackdrop"),close:$("closeSettings"),newBtn:$("newBtn"),undo:$("undoBtn"),hint:$("hintBtn"),solve:$("solveBtn"),grid:$("gridBtn"),win:$("winOverlay"),winStats:$("winStats"),gameOver:$("gameOverOverlay"),gameStats:$("gameOverStats"),restart:$("restartBtn"),next:$("nextBtn"),replay:$("replayBtn"),levelInput:$("levelInput"),levelValue:$("levelValue"),sizeSelect:$("sizeSelect"),sizeValue:$("sizeValue"),diffChips:$("difficultyChips"),diffValue:$("difficultyValue"),shapeSelect:$("shapeSelect"),shapeValue:$("shapeValue"),twistInput:$("twistInput"),twistValue:$("twistValue"),tangleInput:$("tangleInput"),tangleValue:$("tangleValue"),dragInput:$("dragInput"),dragValue:$("dragValue"),themeValue:$("themeValue"),neon:$("neonChip"),paper:$("paperChip"),apply:$("applySettings"),random:$("randomLevel"),sub:$("subTitle")};
+  const ctx=els.canvas.getContext("2d",{alpha:false});
+  const staticCanvas=document.createElement("canvas"), staticCtx=staticCanvas.getContext("2d",{alpha:false});
+  const state={level:1,nonce:0,sizeMode:"auto",difficulty:"normal",shapeMode:"mixed",twist:3,tangle:4,dragTips:false,theme:"neon",showGrid:false,w:10,h:12,mask:null,maskCells:[],pieces:[],history:[],moves:0,hearts:5,hints:8,busy:false,gameOver:false,hintId:null,shapeName:"Full rectangle",seed:0,layout:{scale:1,ox:0,oy:0,dpr:1,w:0,h:0},anim:null,anims:[],drag:null,staticDirty:true,staticExclude:null,flashId:null,flashUntil:0,hudDirty:true,view:{zoom:1,panX:0,panY:0}};
+  const pointers=new Map();let gesture=null,panDrag=null,pendingTap=null,renderQueued=false;
+  function requestRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()})}
+
+  function rngFactory(seed){let t=seed>>>0;return{next(){t+=0x6D2B79F5;let r=Math.imul(t^(t>>>15),1|t);r^=r+Math.imul(r^(r>>>7),61|r);return((r^(r>>>14))>>>0)/4294967296},int(a,b){return Math.floor(this.next()*(b-a+1))+a},pick(a){return a[Math.floor(this.next()*a.length)]},chance(p){return this.next()<p},shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(this.next()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}}}
+  function hashSeed(extra=0){let s=`${state.level}|${state.nonce}|${state.difficulty}|${state.sizeMode}|${state.shapeMode}|${state.twist}|${state.tangle}|${extra}|v42`,h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+  function randomizeSeed(){state.nonce=((Date.now()>>>0)^Math.floor(Math.random()*4294967295))>>>0}
+  function idx(x,y,w=state.w){return y*w+x} function xy(i,w=state.w){return{x:i%w,y:Math.floor(i/w)}} function inBounds(x,y,w=state.w,h=state.h){return x>=0&&y>=0&&x<w&&y<h}
+  function sizeForLevel(){if(state.sizeMode!=="auto")return state.sizeMode.split("x").map(Number);const sizes=DIFFS[state.difficulty].sizes;const rng=rngFactory(hashSeed(771));return rng.pick(sizes)}
+
+  function normalizeMask(mask,w,h){
+    let cells=[];for(let i=0;i<mask.length;i++)if(mask[i])cells.push(i);
+    if(!cells.length){mask.fill(1);cells=Array.from({length:w*h},(_,i)=>i)}
+    const seen=new Uint8Array(w*h);let best=[];
+    for(const start of cells){if(seen[start])continue;const q=[start],comp=[];seen[start]=1;while(q.length){const cur=q.pop();comp.push(cur);const p=xy(cur,w);for(const d of Object.values(DIRS)){const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);if(inBounds(nx,ny,w,h)&&mask[ni]&&!seen[ni]){seen[ni]=1;q.push(ni)}}}if(comp.length>best.length)best=comp}
+    const out=new Uint8Array(w*h);for(const i of best)out[i]=1;
+    if(best.length<Math.max(18,Math.floor(w*h*.16))){out.fill(1)}
+    return out;
+  }
+  function createMask(w,h,shape,rng=null){
+    let mask=new Uint8Array(w*h);const nx=x=>((x+.5)/w)*2-1,ny=y=>((y+.5)/h)*2-1;
+    const ell=(x,y,cx,cy,rx,ry)=>{const dx=(nx(x)-cx)/rx,dy=(ny(y)-cy)/ry;return dx*dx+dy*dy<=1};
+    const add=fn=>{for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(fn(x,y))mask[idx(x,y,w)]=1};
+    const sub=fn=>{for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(fn(x,y))mask[idx(x,y,w)]=0};
+    if(shape==="rectangle"){mask.fill(1);return mask}
+    if(shape==="blob"){
+      rng=rng||rngFactory(hashSeed(0xB10B));
+      // Rounded-rectangle / squircle blob: mostly rectangular footprint with
+      // uneven organic edges, instead of heavily deteriorating into an oval.
+      const sx=.93+rng.next()*.05, sy=.90+rng.next()*.06, power=3.6+rng.next()*1.2;
+      const phases=[rng.next()*6.283,rng.next()*6.283,rng.next()*6.283,rng.next()*6.283];
+      add((x,y)=>{
+        const X=nx(x),Y=ny(y),a=Math.atan2(Y,X);
+        const wav=.030*Math.sin(2*a+phases[0])+.024*Math.sin(4*a+phases[1])+.016*Math.sin(7*a+phases[2])+.010*Math.sin(11*a+phases[3]);
+        const sideNoise=1+wav;
+        const vx=Math.abs(X)/(sx*sideNoise), vy=Math.abs(Y)/(sy*sideNoise);
+        return Math.pow(vx,power)+Math.pow(vy,power)<1;
+      });
+      return normalizeMask(mask,w,h)
+    }
+    if(shape==="butterfly"){add((x,y)=>ell(x,y,-.42,-.28,.42,.37));add((x,y)=>ell(x,y,.42,-.28,.42,.37));add((x,y)=>ell(x,y,-.50,.34,.36,.31));add((x,y)=>ell(x,y,.50,.34,.36,.31));add((x,y)=>Math.abs(nx(x))<.12&&Math.abs(ny(y))<.88);sub((x,y)=>Math.abs(nx(x))<.05&&Math.abs(ny(y))>.62);return normalizeMask(mask,w,h)}
+    if(shape==="trophy"){add((x,y)=>Math.abs(nx(x))<.52&&ny(y)>-.68&&ny(y)<-.08);add((x,y)=>ell(x,y,-.60,-.34,.20,.25)||ell(x,y,.60,-.34,.20,.25));add((x,y)=>Math.abs(nx(x))<.15&&ny(y)>-.08&&ny(y)<.43);add((x,y)=>Math.abs(nx(x))<.36&&ny(y)>=.43&&ny(y)<.75);add((x,y)=>Math.abs(nx(x))<.54&&ny(y)>=.75&&ny(y)<.95);sub((x,y)=>Math.abs(nx(x))<.22&&ny(y)>-.42&&ny(y)<-.15);return normalizeMask(mask,w,h)}
+    if(shape==="dolphin"){add((x,y)=>ell(x,y,-.05,.03,.66,.35));add((x,y)=>nx(x)>.35&&nx(x)<.95&&Math.abs(ny(y))<(.32-(nx(x)-.35)*.24));add((x,y)=>nx(x)<-.36&&ny(y)<-.04&&ny(y)>-.58&&nx(x)>-.94&&ny(y)<(nx(x)+.08)*-.88);add((x,y)=>nx(x)<-.08&&ny(y)>.09&&ny(y)<.58&&ny(y)<(.58-Math.abs(nx(x)+.03)));sub((x,y)=>ell(x,y,.18,.17,.36,.18));return normalizeMask(mask,w,h)}
+    if(shape==="dog"){add((x,y)=>nx(x)>-.76&&nx(x)<.43&&ny(y)>-.19&&ny(y)<.28);add((x,y)=>ell(x,y,.55,-.02,.22,.20));add((x,y)=>nx(x)>.42&&nx(x)<.68&&ny(y)>-.45&&ny(y)<-.1);add((x,y)=>nx(x)>-.66&&nx(x)<-.45&&ny(y)>-.36&&ny(y)<.05);add((x,y)=>(nx(x)>-.56&&nx(x)<-.42||nx(x)>-.10&&nx(x)<.04||nx(x)>.16&&nx(x)<.30||nx(x)>.52&&nx(x)<.67)&&ny(y)>.25&&ny(y)<.94);return normalizeMask(mask,w,h)}
+    if(shape==="rocket"){add((x,y)=>Math.abs(nx(x))<.28&&ny(y)>-.60&&ny(y)<.70);add((x,y)=>Math.abs(nx(x))<(.34-(ny(y)+.96)*.28)&&ny(y)>-.96&&ny(y)<-.60);add((x,y)=>Math.abs(nx(x))<.45&&ny(y)>.70&&ny(y)<.92);add((x,y)=>Math.abs(nx(x))>.24&&Math.abs(nx(x))<.58&&ny(y)>.20&&ny(y)<.72);sub((x,y)=>ell(x,y,0,-.35,.12,.12));return normalizeMask(mask,w,h)}
+    if(shape==="heart"){add((x,y)=>ell(x,y,-.28,-.34,.35,.32));add((x,y)=>ell(x,y,.28,-.34,.35,.32));add((x,y)=>Math.abs(nx(x))<(.78-(ny(y)+.10)*.58)&&ny(y)>-.12&&ny(y)<.92);return normalizeMask(mask,w,h)}
+    add((x,y)=>nx(x)>-.34&&nx(x)<.04&&ny(y)>-.80&&ny(y)<.56);add((x,y)=>nx(x)>-.24&&nx(x)<.56&&ny(y)>.53&&ny(y)<.92);add((x,y)=>nx(x)>-.13&&nx(x)<.54&&ny(y)>.16&&ny(y)<.57);add((x,y)=>nx(x)>-.12&&nx(x)<.56&&ny(y)>-.20&&ny(y)<.23&&ny(y)<-.62*nx(x)+.08);add((x,y)=>nx(x)>-.26&&nx(x)<.28&&ny(y)>-.72&&ny(y)<-.18&&ny(y)>1.25*nx(x)-.74);add((x,y)=>nx(x)>.12&&nx(x)<.48&&ny(y)>-.55&&ny(y)<-.18&&ny(y)<.68*nx(x)-.20);sub((x,y)=>nx(x)>.22&&nx(x)<.55&&ny(y)>-.10&&ny(y)<.18);return normalizeMask(mask,w,h)
+  }
+  function chooseShape(rng){if(state.shapeMode!=="mixed")return state.shapeMode;return rng.chance(.48)?"rectangle":"blob"}
+
+  function computeDepth(mask,w,h){
+    const depth=new Int16Array(w*h);depth.fill(-1);const q=[];
+    for(let i=0;i<mask.length;i++){if(!mask[i])continue;const p=xy(i,w);let edge=false;for(const d of Object.values(DIRS)){const nx=p.x+d.dx,ny=p.y+d.dy;if(!inBounds(nx,ny,w,h)||!mask[idx(nx,ny,w)])edge=true}if(edge){depth[i]=0;q.push(i)}}
+    for(let qi=0;qi<q.length;qi++){const cur=q[qi],p=xy(cur,w),base=depth[cur];for(const d of Object.values(DIRS)){const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);if(inBounds(nx,ny,w,h)&&mask[ni]&&depth[ni]<0){depth[ni]=base+1;q.push(ni)}}}
+    return depth;
+  }
+  function rayClearIndex(i,dir,unocc,mask,w,h){
+    const p=xy(i,w),d=DIRS[dir];let x=p.x+d.dx,y=p.y+d.dy,steps=1;
+    while(inBounds(x,y,w,h)&&mask[idx(x,y,w)]){const ni=idx(x,y,w);if(!unocc[ni])return{ok:false,steps,blocker:ni};x+=d.dx;y+=d.dy;steps++}
+    return{ok:true,steps};
+  }
+  function visibleDirs(i,unocc,mask,w,h){
+    let out=[],best=0;
+    for(const dk of DIR_KEYS){const r=rayClearIndex(i,dk,unocc,mask,w,h);if(r.ok){out.push({dir:dk,steps:r.steps});if(r.steps>best)best=r.steps}}
+    return {dirs:out,best};
+  }
+  function componentVisibleOk(unocc,mask,w,h,remaining){
+    if(remaining===0)return true;
+    const seen=new Uint8Array(w*h);
+    for(let i=0;i<unocc.length;i++){
+      if(!unocc[i]||seen[i])continue;
+      const q=[i];seen[i]=1;let visible=false,count=0;
+      while(q.length){const cur=q.pop();count++;const v=visibleDirs(cur,unocc,mask,w,h);if(v.dirs.length)visible=true;const p=xy(cur,w);for(const d of Object.values(DIRS)){const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);if(inBounds(nx,ny,w,h)&&unocc[ni]&&!seen[ni]){seen[ni]=1;q.push(ni)}}}
+      if(!visible)return false;
+    }
+    return true;
+  }
+  function adjacencyToPlaced(i,unocc,mask,w,h){
+    const p=xy(i,w);let n=0;
+    for(const d of Object.values(DIRS)){const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);if(inBounds(nx,ny,w,h)&&mask[ni]&&!unocc[ni])n++}
+    return n;
+  }
+  function candidateHeads(unocc,mask,w,h,depth,rng){
+    const arr=[];
+    for(let i=0;i<unocc.length;i++){if(!unocc[i])continue;const vd=visibleDirs(i,unocc,mask,w,h);if(!vd.dirs.length)continue;arr.push({i,dirs:vd.dirs,best:vd.best,depth:depth[i],adj:adjacencyToPlaced(i,unocc,mask,w,h),r:rng.next()})}
+    return arr;
+  }
+  function growPiece(head,dir,unocc,mask,w,h,depth,rng,remaining,singlesAllowed){
+    const cfg=DIFFS[state.difficulty], d=DIRS[dir], p=xy(head,w);
+    const backX=p.x-d.dx, backY=p.y-d.dy, backI=idx(backX,backY,w);
+    let canMulti=inBounds(backX,backY,w,h)&&unocc[backI];
+    const longBoost=Math.floor(Math.sqrt(w*h)/8)+state.twist+state.tangle;
+    const maxLen=Math.min(remaining,cfg.max+longBoost);
+    const minLen=Math.min(maxLen,cfg.min);
+    let target;
+    const roll=rng.next();
+    if(roll<.18)target=rng.int(1,Math.min(3,maxLen));
+    else if(roll>.82)target=rng.int(Math.min(maxLen,Math.max(minLen,8)),maxLen);
+    else target=rng.int(minLen,maxLen);
+    if(!canMulti)target=1;
+    if(target===1&&!singlesAllowed&&remaining>3)return null;
+    const used=new Uint8Array(w*h);used[head]=1;const path=[head]; // head -> tail
+    let prevDx=null,prevDy=null;
+    if(target>1){
+      if(canMulti){used[backI]=1;path.push(backI);prevDx=-d.dx;prevDy=-d.dy;}
+      else target=1;
+    }
+    while(path.length<target){
+      const cur=path[path.length-1], cp=xy(cur,w), opts=[];
+      for(const dk of DIR_KEYS){const nd=DIRS[dk],nx=cp.x+nd.dx,ny=cp.y+nd.dy;if(!inBounds(nx,ny,w,h))continue;const ni=idx(nx,ny,w);if(!unocc[ni]||used[ni])continue;let deg=0;for(const dd of Object.values(DIRS)){const ax=nx+dd.dx,ay=ny+dd.dy,ai=idx(ax,ay,w);if(inBounds(ax,ay,w,h)&&unocc[ai]&&!used[ai])deg++}
+        const turn=prevDx===null||nd.dx!==prevDx||nd.dy!==prevDy;let score=rng.next()*2.4 + (depth[ni]||0)*.28 + deg*.25 + adjacencyToPlaced(ni,unocc,mask,w,h)*(.35+.12*state.tangle);
+        if(turn)score+=.55+state.twist*.24;
+        if(state.tangle>=4)score+=rng.next()*3.0;
+        opts.push({ni,dx:nd.dx,dy:nd.dy,score});
+      }
+      if(!opts.length)break;
+      opts.sort((a,b)=>b.score-a.score);
+      if(path.length>=minLen&&rng.chance(.035+path.length/(target*3.0)))break;
+      const ch=opts[0];used[ch.ni]=1;path.push(ch.ni);prevDx=ch.dx;prevDy=ch.dy;
+    }
+    if(path.length===1&&!singlesAllowed&&remaining>3)return null;
+    return path; // head -> tail
+  }
+  function pathSelfBlocksHead(path,dir,w,h,mask){
+    // The head's escape ray may not cross its own body. A snake can follow its
+    // body, but it cannot have the arrow head pointed into another segment of
+    // the same arrow. This was the source of the impossible U-shaped arrows.
+    if(!path||path.length<2)return false;
+    const head=path[0], body=new Set(path.slice(1)), p=xy(head,w), d=DIRS[dir];
+    let x=p.x+d.dx,y=p.y+d.dy;
+    while(inBounds(x,y,w,h)&&mask[idx(x,y,w)]){
+      if(body.has(idx(x,y,w)))return true;
+      x+=d.dx;y+=d.dy;
+    }
+    return false;
+  }
+  function generateAttempt(seed, relaxed=false){
+    // v26: direct monotone visibility-carving.
+    //
+    // This is the clean guaranteed method:
+    // 1) Keep the current occupied cells.
+    // 2) Pick any occupied head whose ray to the outside is clear through cells
+    //    already carved empty.
+    // 3) Grow its body through still-occupied cells behind/around it.
+    // 4) Remove the whole arrow.
+    //
+    // Removing occupied cells can only make future rays MORE open, never less.
+    // Therefore a legal head always exists until the finite shape is empty.
+    // No row fallback, no ribbon fallback, no smaller-board substitution, and
+    // no probabilistic "hope it solves" validation loop.
+    const [w,h]=sizeForLevel();
+    const rng=rngFactory(seed);
+    const shape=chooseShape(rng);
+    const mask=createMask(w,h,shape,rng);
+    const depth=computeDepth(mask,w,h);
+    const remainingMap=new Uint8Array(mask.length); // 1 = occupied / not carved yet
+    let remaining=0;
+    for(let i=0;i<mask.length;i++){if(mask[i]){remainingMap[i]=1;remaining++}}
+    const originalRemaining=remaining;
+    const pal=state.theme==="paper"?PAPER:COLORS;
+    const pieces=[];
+    let id=1,shortPieces=0,guard=0;
+    const shortCenters=[];
+    const shortBudget=Math.max(5,Math.floor(originalRemaining/24));
+
+    function rayToOutsideThroughEmpty(cell,dir){
+      const p=xy(cell,w),d=DIRS[dir];
+      let x=p.x+d.dx,y=p.y+d.dy,steps=1;
+      while(inBounds(x,y,w,h)){
+        const ni=idx(x,y,w);
+        // Empty holes/gaps inside a soft blob are NOT an exit. They are air.
+        // Keep scanning across them and only block on actual remaining arrows.
+        if(mask[ni]&&remainingMap[ni])return{ok:false,steps};
+        x+=d.dx;y+=d.dy;steps++;
+      }
+      return{ok:true,steps};
+    }
+    function visibleDirsFor(cell){
+      const out=[];
+      for(const dk of DIR_KEYS){
+        const r=rayToOutsideThroughEmpty(cell,dk);
+        if(r.ok)out.push({dir:dk,steps:r.steps});
+      }
+      return out;
+    }
+    function neckAvailable(cell,dir){
+      const p=xy(cell,w),d=DIRS[dir],nx=p.x-d.dx,ny=p.y-d.dy;
+      if(!inBounds(nx,ny,w,h))return false;
+      const ni=idx(nx,ny,w);
+      return !!(mask[ni]&&remainingMap[ni]);
+    }
+    function emptyAdj(cell){
+      const p=xy(cell,w);let n=0;
+      for(const d of Object.values(DIRS)){
+        const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);
+        if(!inBounds(nx,ny,w,h)||!mask[ni]||!remainingMap[ni])n++;
+      }
+      return n;
+    }
+    function pathCenter(path){
+      let sx=0,sy=0;
+      for(const pi of path){const p=xy(pi,w);sx+=p.x;sy+=p.y}
+      return{x:sx/path.length,y:sy/path.length};
+    }
+    function nearRecentShort(path){
+      const c=pathCenter(path),minDist=Math.max(2.8,Math.min(7.0,Math.sqrt(w*h)/15));
+      for(const s of shortCenters){if(Math.hypot(c.x-s.x,c.y-s.y)<minDist)return true}
+      return false;
+    }
+    function leavesSingletonComponent(path){
+      const cut=new Uint8Array(mask.length);
+      for(const pi of path)cut[pi]=1;
+      const seen=new Uint8Array(mask.length);
+      for(let i=0;i<remainingMap.length;i++){
+        if(!remainingMap[i]||cut[i]||seen[i])continue;
+        let count=0,q=[i];seen[i]=1;
+        while(q.length){
+          const cur=q.pop();count++;
+          const p=xy(cur,w);
+          for(const d of Object.values(DIRS)){
+            const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);
+            if(inBounds(nx,ny,w,h)&&remainingMap[ni]&&!cut[ni]&&!seen[ni]){
+              seen[ni]=1;q.push(ni);
+            }
+          }
+        }
+        if(count===1)return true;
+      }
+      return false;
+    }
+    function isAheadOfHead(head,dir,cell){
+      const hp=xy(head,w),cp=xy(cell,w),d=DIRS[dir];
+      if(d.dx!==0)return cp.y===hp.y && (cp.x-hp.x)*d.dx>0;
+      return cp.x===hp.x && (cp.y-hp.y)*d.dy>0;
+    }
+    function degreeRemaining(cell,used,head,dir){
+      const p=xy(cell,w);let n=0;
+      for(const d of Object.values(DIRS)){
+        const nx=p.x+d.dx,ny=p.y+d.dy,ni=idx(nx,ny,w);
+        if(inBounds(nx,ny,w,h)&&mask[ni]&&remainingMap[ni]&&!used[ni]&&!isAheadOfHead(head,dir,ni))n++;
+      }
+      return n;
+    }
+    function candidateHeads(){
+      const out=[];
+      for(let i=0;i<remainingMap.length;i++){
+        if(!remainingMap[i])continue;
+        const dirs=visibleDirsFor(i);
+        if(!dirs.length)continue;
+        let necks=0;
+        for(const rd of dirs)if(neckAvailable(i,rd.dir))necks++;
+        if(remaining>1 && !necks)continue;
+        out.push({i,dirs,necks,depth:depth[i]||0,open:emptyAdj(i),r:rng.next()});
+      }
+      return out;
+    }
+    function growPath(head,dir){
+      const cfg={min:4,max:Math.max(10,Math.floor(Math.sqrt(w*h)/2.6))},d=DIRS[dir],hp=xy(head,w);
+      const used=new Uint8Array(mask.length);
+      const path=[head]; used[head]=1;
+
+      const areaBoost=Math.floor(Math.sqrt(w*h)/5);
+      const maxLen=Math.min(remaining,cfg.max+areaBoost+state.twist+state.tangle+8);
+      const minLen=Math.min(maxLen,Math.max(cfg.min,5));
+      let target;
+      const roll=rng.next();
+      if(roll<.04)target=rng.int(2,Math.min(4,maxLen));
+      else if(roll>.66)target=rng.int(Math.min(maxLen,Math.max(minLen,10)),maxLen);
+      else target=rng.int(minLen,maxLen);
+
+      // Hard tip alignment: multi-cell arrows must begin their body in the
+      // cell directly behind the head.
+      if(target>1){
+        const nx=hp.x-d.dx,ny=hp.y-d.dy;
+        if(inBounds(nx,ny,w,h)){
+          const ni=idx(nx,ny,w);
+          if(mask[ni]&&remainingMap[ni]){
+            path.push(ni); used[ni]=1;
+          }else{
+            target=1;
+          }
+        }else{
+          target=1;
+        }
+      }
+
+      let prevDx=path.length>1?xy(path[1],w).x-hp.x:0;
+      let prevDy=path.length>1?xy(path[1],w).y-hp.y:0;
+
+      while(path.length<target){
+        const cur=path[path.length-1],cp=xy(cur,w),opts=[];
+        for(const dk of DIR_KEYS){
+          const nd=DIRS[dk],nx=cp.x+nd.dx,ny=cp.y+nd.dy;
+          if(!inBounds(nx,ny,w,h))continue;
+          const ni=idx(nx,ny,w);
+          if(!mask[ni]||!remainingMap[ni]||used[ni])continue;
+          if(isAheadOfHead(head,dir,ni))continue;
+          const turn=nd.dx!==prevDx||nd.dy!==prevDy;
+          let nearEmpty=0,nearOccupied=0;
+          for(const dd of Object.values(DIRS)){
+            const ax=nx+dd.dx,ay=ny+dd.dy,ai=idx(ax,ay,w);
+            if(!inBounds(ax,ay,w)||!mask[ai]||!remainingMap[ai])nearEmpty++;
+            else if(!used[ai])nearOccupied++;
+          }
+          const deg=degreeRemaining(ni,used,head,dir);
+          let score=rng.next()*3.0 + deg*.42 + nearOccupied*.22 + nearEmpty*(.18+state.tangle*.08) + (depth[ni]||0)*.18;
+          if(turn)score+=.14+state.twist*.10;else score+=1.05+state.tangle*.06;
+          if(state.tangle>=4)score+=rng.next()*3.4;
+          opts.push({ni,dx:nd.dx,dy:nd.dy,score});
+        }
+        if(!opts.length)break;
+        opts.sort((a,b)=>b.score-a.score);
+        if(path.length>=Math.max(minLen,8)&&rng.chance(.008+path.length/(target*7.2)))break;
+        const ch=opts[0];
+        path.push(ch.ni); used[ch.ni]=1; prevDx=ch.dx; prevDy=ch.dy;
+      }
+
+      if(path.length>1){
+        const neck=xy(path[1],w);
+        if(neck.x!==hp.x-d.dx||neck.y!==hp.y-d.dy)return [head];
+      }
+      if(pathSelfBlocksHead(path,dir,w,h,mask))return [head];
+      return path;
+    }
+
+    while(remaining>0 && guard++<originalRemaining+20){
+      let heads=candidateHeads();
+      if(!heads.length)return null; // mathematically should not happen
+
+      heads.sort((a,b)=>{
+        const sa=a.necks*2.8 + a.open*(.85+state.tangle*.14) + a.depth*.12 + a.r*(2.2+state.tangle*2.8);
+        const sb=b.necks*2.8 + b.open*(.85+state.tangle*.14) + b.depth*.12 + b.r*(2.2+state.tangle*2.8);
+        return sb-sa;
+      });
+
+      let chosen=null, backup=null;
+      const window=Math.min(heads.length,18+state.tangle*14);
+      const attempts=Math.min(heads.length,window+24);
+
+      // Sample several currently legal heads and choose the best grown body,
+      // instead of accepting the first legal one. This keeps the guaranteed
+      // monotone property while greatly reducing clusters of 1–2 cell arrows.
+      for(let a=0;a<attempts;a++){
+        const head=heads[Math.min(heads.length-1,rng.int(0,window-1)+Math.floor(a/window))];
+        const dirs=head.dirs.slice().sort((x,y)=>(neckAvailable(head.i,y.dir)?1:0)-(neckAvailable(head.i,x.dir)?1:0)||x.steps-y.steps||rng.next()-.5);
+        const dirLimit=Math.min(dirs.length,2+(state.tangle>=4?1:0));
+        for(let di=0;di<dirLimit;di++){
+          const rd=dirs[di];
+          const path=growPath(head.i,rd.dir);
+          if(path.length<2)continue;
+          if(remaining-path.length===1)continue;
+          if(leavesSingletonComponent(path))continue;
+          const short=path.length<=2;
+          let turns=0;
+          for(let k=2;k<path.length;k++){
+            const a0=xy(path[k-2],w),b0=xy(path[k-1],w),c0=xy(path[k],w);
+            if((b0.x-a0.x)!==(c0.x-b0.x)||(b0.y-a0.y)!==(c0.y-b0.y))turns++;
+          }
+          let score=path.length*3.2 + turns*(.9+state.twist*.18) + (depth[path[path.length-1]]||0)*.12 + rng.next()*2.5;
+          if(short)score-=8;
+          if(short && remaining>8 && shortPieces>=shortBudget)score-=12;
+          if(short && remaining>8 && nearRecentShort(path))score-=10;
+          const cand={path,dir:rd.dir,score};
+          if(!backup||cand.score>backup.score)backup=cand;
+          if(!short || remaining<=8){
+            if(!chosen||cand.score>chosen.score)chosen=cand;
+          }
+        }
+      }
+
+      // No single-cell arrows. If this seed would force one, fail the seed and
+      // let generateLevel try another same-settings seed.
+      if(!chosen)chosen=backup;
+      if(!chosen || chosen.path.length<2 || remaining-chosen.path.length===1 || leavesSingletonComponent(chosen.path))return null;
+
+      for(const pi of chosen.path){if(remainingMap[pi]){remainingMap[pi]=0;remaining--}}
+      const cells=chosen.path.slice().reverse().map(i=>xy(i,w));
+      pieces.push({id,cells,dir:chosen.dir,color:pal[(id*5+Math.floor(id/pal.length))%pal.length],removed:false,order:id});
+      if(cells.length<=2){shortPieces++;shortCenters.push(pathCenter(chosen.path))}
+      id++;
+    }
+
+    if(pieces.some(p=>p.cells.length<2))return null;
+    return {w,h,mask,pieces,shapeName:SHAPES[shape]+" • no-single carve",seed};
+  }
+  function fallbackSingles(seed){
+    // v13 emergency generator: guaranteed full coverage without "only rows".
+    // It first fills 2-row or 2-column ribbons with U/L shaped arrows whose
+    // heads point OUT of their own bodies. Remaining contour cells are then
+    // filled by mixed row/column edge chunks. This is not as organic as the
+    // main reverse generator, but it avoids the unacceptable all-row fallback.
+    const [w,h]=sizeForLevel();
+    const rng=rngFactory(seed);
+    const shape=state.shapeMode==="mixed"?"rectangle":state.shapeMode;
+    const mask=createMask(w,h,shape);
+    const pal=state.theme==="paper"?PAPER:COLORS;
+    const assigned=new Uint8Array(w*h);
+    const pieces=[];
+    let id=1;
+    const maxChunk=Math.max(2,Math.min(8,2+state.twist+Math.floor(state.tangle/2)));
+
+    function has(x,y){return inBounds(x,y,w,h)&&mask[idx(x,y,w)]&&!assigned[idx(x,y,w)]}
+    function addPiece(cells,dir){
+      if(!cells.length)return;
+      for(const c of cells)assigned[idx(c.x,c.y,w)]=1;
+      pieces.push({id,cells,dir,color:pal[(id*5+Math.floor(id/pal.length))%pal.length],removed:false,order:id});
+      id++;
+    }
+
+    function fillRowPair(y){
+      if(y<0||y+1>=h)return;
+      let x=0;
+      while(x<w){
+        while(x<w && !(has(x,y)&&has(x,y+1)))x++;
+        if(x>=w)break;
+        const start=x;
+        while(x<w && has(x,y)&&has(x,y+1))x++;
+        const end=x-1;
+        const dir=rng.chance(.5)?"R":"L";
+        if(dir==="R"){
+          let cx=start;
+          while(cx<=end){
+            const len=Math.min(end-cx+1,rng.int(2,maxChunk));
+            const hx=cx+len-1, cells=[];
+            // tail -> head: lower right -> lower left -> upper left -> upper right(head)
+            for(let xx=hx;xx>=cx;xx--)cells.push({x:xx,y:y+1});
+            cells.push({x:cx,y});
+            for(let xx=cx+1;xx<=hx;xx++)cells.push({x:xx,y});
+            addPiece(cells,"R");
+            cx+=len;
+          }
+        }else{
+          let cx=end;
+          while(cx>=start){
+            const len=Math.min(cx-start+1,rng.int(2,maxChunk));
+            const hx=cx-len+1, cells=[];
+            // tail -> head: lower left -> lower right -> upper right -> upper left(head)
+            for(let xx=hx;xx<=cx;xx++)cells.push({x:xx,y:y+1});
+            cells.push({x:cx,y});
+            for(let xx=cx-1;xx>=hx;xx--)cells.push({x:xx,y});
+            addPiece(cells,"L");
+            cx-=len;
+          }
+        }
+      }
+    }
+
+    function fillColPair(x){
+      if(x<0||x+1>=w)return;
+      let y=0;
+      while(y<h){
+        while(y<h && !(has(x,y)&&has(x+1,y)))y++;
+        if(y>=h)break;
+        const start=y;
+        while(y<h && has(x,y)&&has(x+1,y))y++;
+        const end=y-1;
+        const dir=rng.chance(.5)?"D":"U";
+        if(dir==="D"){
+          let cy=start;
+          while(cy<=end){
+            const len=Math.min(end-cy+1,rng.int(2,maxChunk));
+            const hy=cy+len-1, cells=[];
+            // tail -> head: right bottom -> right top -> left top -> left bottom(head)
+            for(let yy=hy;yy>=cy;yy--)cells.push({x:x+1,y:yy});
+            cells.push({x,y:cy});
+            for(let yy=cy+1;yy<=hy;yy++)cells.push({x,y:yy});
+            addPiece(cells,"D");
+            cy+=len;
+          }
+        }else{
+          let cy=end;
+          while(cy>=start){
+            const len=Math.min(cy-start+1,rng.int(2,maxChunk));
+            const hy=cy-len+1, cells=[];
+            // tail -> head: right top -> right bottom -> left bottom -> left top(head)
+            for(let yy=hy;yy<=cy;yy++)cells.push({x:x+1,y:yy});
+            cells.push({x,y:cy});
+            for(let yy=cy-1;yy>=hy;yy--)cells.push({x,y:yy});
+            addPiece(cells,"U");
+            cy-=len;
+          }
+        }
+      }
+    }
+
+    // Randomized ribbon pass. Mix row and column ribbons so the fallback has
+    // U-bends in both orientations instead of a grid of horizontal rows.
+    const rowPairs=[];
+    for(let y=0;y<h-1;y+=2)rowPairs.push(y);
+    const colPairs=[];
+    for(let x=0;x<w-1;x+=2)colPairs.push(x);
+    rng.shuffle(rowPairs); rng.shuffle(colPairs);
+
+    if(rng.chance(.5)){
+      for(const y of rowPairs)if(rng.chance(.72))fillRowPair(y);
+      for(const x of colPairs)if(rng.chance(.42))fillColPair(x);
+    }else{
+      for(const x of colPairs)if(rng.chance(.72))fillColPair(x);
+      for(const y of rowPairs)if(rng.chance(.42))fillRowPair(y);
+    }
+
+    function fillRemainingLineHorizontal(y){
+      let x=0;
+      while(x<w){
+        while(x<w&&!has(x,y))x++;
+        if(x>=w)break;
+        const start=x;
+        while(x<w&&has(x,y))x++;
+        const end=x-1;
+        const dir=rng.chance(.5)?"R":"L";
+        if(dir==="R"){
+          let cx=start;
+          while(cx<=end){
+            const len=Math.min(end-cx+1,rng.int(1,maxChunk));
+            const cells=[];
+            for(let xx=cx;xx<cx+len;xx++)cells.push({x:xx,y});
+            addPiece(cells,"R");
+            cx+=len;
+          }
+        }else{
+          let cx=end;
+          while(cx>=start){
+            const len=Math.min(cx-start+1,rng.int(1,maxChunk));
+            const cells=[];
+            for(let xx=cx;xx>cx-len;xx--)cells.push({x:xx,y});
+            addPiece(cells,"L");
+            cx-=len;
+          }
+        }
+      }
+    }
+
+    function fillRemainingLineVertical(x){
+      let y=0;
+      while(y<h){
+        while(y<h&&!has(x,y))y++;
+        if(y>=h)break;
+        const start=y;
+        while(y<h&&has(x,y))y++;
+        const end=y-1;
+        const dir=rng.chance(.5)?"D":"U";
+        if(dir==="D"){
+          let cy=start;
+          while(cy<=end){
+            const len=Math.min(end-cy+1,rng.int(1,maxChunk));
+            const cells=[];
+            for(let yy=cy;yy<cy+len;yy++)cells.push({x,y:yy});
+            addPiece(cells,"D");
+            cy+=len;
+          }
+        }else{
+          let cy=end;
+          while(cy>=start){
+            const len=Math.min(cy-start+1,rng.int(1,maxChunk));
+            const cells=[];
+            for(let yy=cy;yy>cy-len;yy--)cells.push({x,y:yy});
+            addPiece(cells,"U");
+            cy-=len;
+          }
+        }
+      }
+    }
+
+    // Fill leftover contour cells using a random mix of horizontal and vertical
+    // passes. Because these are leftovers after full ribbons, this is a minority
+    // of the board, not the whole game.
+    if(rng.chance(.5)){
+      const ys=Array.from({length:h},(_,i)=>i); rng.shuffle(ys);
+      for(const y of ys)fillRemainingLineHorizontal(y);
+      const xs=Array.from({length:w},(_,i)=>i); rng.shuffle(xs);
+      for(const x of xs)fillRemainingLineVertical(x);
+    }else{
+      const xs=Array.from({length:w},(_,i)=>i); rng.shuffle(xs);
+      for(const x of xs)fillRemainingLineVertical(x);
+      const ys=Array.from({length:h},(_,i)=>i); rng.shuffle(ys);
+      for(const y of ys)fillRemainingLineHorizontal(y);
+    }
+
+    return {w,h,mask,pieces,shapeName:SHAPES[shape]+" • ribbon fallback",seed};
+  }
+  function generateLevel(){
+    // Same settings, randomized hidden seeds. No board fallback, no smaller board,
+    // no row/ribbon replacement; just different valid random seeds.
+    for(let i=0;i<180;i++){
+      if(i>0)state.nonce=((state.nonce+0x9E3779B9+i*2654435761)>>>0);
+      const base=hashSeed(i);
+      const built=generateAttempt(base,false);
+      if(!built)continue;
+      applyBuilt(built);
+      if(verifySolvable() && !state.pieces.some(p=>p.cells.length<2))return true;
+    }
+    return false;
+  }
+  function applyBuilt(b){state.w=b.w;state.h=b.h;state.mask=b.mask;state.maskCells=[];for(let i=0;i<b.mask.length;i++)if(b.mask[i])state.maskCells.push(i);state.pieces=b.pieces;state.shapeName=b.shapeName;state.seed=b.seed;state.history=[];state.moves=0;state.hearts=DIFFS[state.difficulty].hearts;state.hints=DIFFS[state.difficulty].hints;state.busy=false;state.gameOver=false;els.gameOver.classList.remove("show");state.hintId=null;state.anim=null;state.anims=[];state.drag=null;state.view={zoom:1,panX:0,panY:0};state.staticDirty=true;state.staticExclude=null}
+  function buildOcc(skipId=null){
+    const occ=new Int32Array(state.w*state.h);occ.fill(-1);
+    for(const p of state.pieces){if(p.removed||p.id===skipId)continue;for(const c of p.cells)occ[idx(c.x,c.y)]=p.id}
+    return occ;
+  }
+  function canExit(piece){
+    if(piece.removed)return{ok:false};
+    const d=DIRS[piece.dir],head=piece.cells[piece.cells.length-1];
+    const occ=buildOcc(null); // include self; only the head cell itself is exempt
+    const headIndex=idx(head.x,head.y);
+    for(let s=1;s<state.w+state.h+80;s++){
+      const nx=head.x+d.dx*s,ny=head.y+d.dy*s;
+      if(!inBounds(nx,ny))return{ok:true,steps:s+1,exitStep:s};
+      const cellIndex=idx(nx,ny);
+      const b=occ[cellIndex];
+      // A blank/missing cell inside a blob is just empty space, not an exit.
+      // Continue scanning until the full board boundary is crossed.
+      if(b!==-1 && cellIndex!==headIndex){
+        return{ok:false,blocker:b,selfBlock:b===piece.id,cell:{x:nx,y:ny},steps:s};
+      }
+    }
+    return{ok:false};
+  }
+  function findRemovable(){return state.pieces.filter(p=>!p.removed).map(p=>({piece:p,test:canExit(p)})).filter(x=>x.test.ok)}
+  function verifySolvable(){
+    const saved=state.pieces.map(p=>p.removed);let guard=0;
+    while(guard++<20000){const opts=findRemovable();if(!opts.length)break;opts.sort((a,b)=>b.piece.cells.length-a.piece.cells.length);opts[0].piece.removed=true;if(state.pieces.every(p=>p.removed))break}
+    const ok=state.pieces.every(p=>p.removed);state.pieces.forEach((p,i)=>p.removed=saved[i]);return ok;
+  }
+
+  function resetView(){state.view={zoom:1,panX:0,panY:0}}
+  function updateViewLayout(){const L=state.layout;if(!L.w)return;L.scale=L.baseScale*state.view.zoom;L.ox=(L.w-state.w*L.scale)/2+state.view.panX;L.oy=(L.h-state.h*L.scale)/2+state.view.panY;state.staticDirty=true}
+  function resizeCanvas(){
+    const r=els.card.getBoundingClientRect(),dpr=Math.min(1.35,window.devicePixelRatio||1);
+    els.canvas.width=Math.max(1,Math.floor(r.width*dpr));els.canvas.height=Math.max(1,Math.floor(r.height*dpr));els.canvas.style.width=r.width+"px";els.canvas.style.height=r.height+"px";
+    staticCanvas.width=els.canvas.width;staticCanvas.height=els.canvas.height;
+    ctx.setTransform(dpr,0,0,dpr,0,0);staticCtx.setTransform(dpr,0,0,dpr,0,0);
+    const usableW=r.width*.88,usableH=r.height*.88,baseScale=Math.min(usableW/state.w,usableH/state.h);
+    state.layout={dpr,baseScale,scale:baseScale,ox:0,oy:0,w:r.width,h:r.height};
+    updateViewLayout();render();
+  }
+  function clampView(){const L=state.layout;if(!L.w)return;const pad=80;const bw=state.w*L.scale,bh=state.h*L.scale;state.view.panX=Math.max(-bw+pad,Math.min(L.w-pad,state.view.panX));state.view.panY=Math.max(-bh+pad,Math.min(L.h-pad,state.view.panY));updateViewLayout()}
+  function cellCenter(c){const L=state.layout;return{x:L.ox+(c.x+.5)*L.scale,y:L.oy+(c.y+.5)*L.scale}}
+  function pointsForPiece(p){
+    if(p.cells.length>1)return p.cells.map(cellCenter);
+    const c=cellCenter(p.cells[0]),d=DIRS[p.dir],s=state.layout.scale;
+    return[{x:c.x-d.dx*s*.30,y:c.y-d.dy*s*.30},{x:c.x+d.dx*s*.22,y:c.y+d.dy*s*.22}];
+  }
+  function polyLen(pts){let n=0;for(let i=1;i<pts.length;i++)n+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);return n}
+  function cumLen(pts){const c=[0];for(let i=1;i<pts.length;i++)c.push(c[c.length-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));return c}
+  function atDist(pts,cum,d){if(d<=0)return{...pts[0]};const total=cum[cum.length-1];if(d>=total)return{...pts[pts.length-1]};let i=1;while(i<cum.length&&cum[i]<d)i++;const a=pts[i-1],b=pts[i],t=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}}
+  function segment(pts,start,end){const cum=cumLen(pts),total=cum[cum.length-1],s=Math.max(0,Math.min(total,start)),e=Math.max(s,Math.min(total,end)),out=[atDist(pts,cum,s)];for(let i=1;i<pts.length-1;i++)if(cum[i]>s&&cum[i]<e)out.push({...pts[i]});out.push(atDist(pts,cum,e));return out}
+  function segmentWithCum(pts,cum,start,end){const total=cum[cum.length-1],s=Math.max(0,Math.min(total,start)),e=Math.max(s,Math.min(total,end)),out=[atDist(pts,cum,s)];for(let i=1;i<pts.length-1;i++)if(cum[i]>s&&cum[i]<e)out.push({...pts[i]});out.push(atDist(pts,cum,e));return out}
+  function routeFor(p,steps){
+    const pts=pointsForPiece(p),end=pts[pts.length-1],d=DIRS[p.dir],s=state.layout.scale,L=state.layout,r=pts.slice();
+    const chain=polyLen(pts);
+    const distToViewportEdge=d.dx>0?(L.w-end.x):d.dx<0?end.x:d.dy>0?(L.h-end.y):end.y;
+    // The old route only went a few cells past the board. That meant the
+    // arrow reached the board edge, then got removed while still visible.
+    // This extends the route until the TAIL is off the visible canvas too.
+    const extra=Math.max((steps+p.cells.length+6)*s,distToViewportEdge+chain+s*3+90);
+    r.push({x:end.x+d.dx*extra,y:end.y+d.dy*extra});
+    return r;
+  }
+
+  function drawPolyline(c,pts,color,width,alpha=1,glow=false){if(pts.length<2)return;c.save();c.globalAlpha=alpha;c.lineCap="round";c.lineJoin="round";if(glow){c.shadowColor=color;c.shadowBlur=Math.min(10,Math.max(2,state.layout.scale*.18))}c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);c.stroke();c.restore()}
+  function drawHintHighlight(c,p,now){
+    const pts=pointsForPiece(p),s=state.layout.scale,w=Math.max(6,s*.62);
+    const pulse=.68+.22*Math.sin(now*.009);
+    c.save();
+    c.lineCap="round";c.lineJoin="round";
+    c.shadowColor="#ffffff";c.shadowBlur=Math.max(18,s*.65);
+    c.strokeStyle="rgba(255,255,255,.92)";c.lineWidth=w*1.15;c.globalAlpha=pulse*.72;
+    c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);c.stroke();
+    c.shadowColor="#fff36a";c.shadowBlur=Math.max(22,s*.82);
+    c.strokeStyle="rgba(255,241,94,.95)";c.lineWidth=Math.max(3,w*.55);c.globalAlpha=pulse;
+    c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);c.stroke();
+    const end=pts[pts.length-1];c.fillStyle="rgba(255,244,110,.96)";c.globalAlpha=.75+.25*Math.sin(now*.012);
+    c.beginPath();c.arc(end.x,end.y,Math.max(6,s*.32),0,Math.PI*2);c.fill();
+    c.restore();
+  }
+  function tipDirFromPoints(p,pts){
+    if(!pts||pts.length<2)return DIRS[p.dir];
+    const a=pts[pts.length-2],b=pts[pts.length-1],vx=b.x-a.x,vy=b.y-a.y;
+    if(Math.abs(vx)>=Math.abs(vy))return{dx:vx>=0?1:-1,dy:0};
+    return{dx:0,dy:vy>=0?1:-1};
+  }
+  function drawTip(c,p,end,color,alpha=1,moving=false,dirOverride=null){const d=dirOverride||DIRS[p.dir],s=state.layout.scale,len=Math.max(4.5,s*.31),half=Math.max(2.6,s*.145),cx=end.x+d.dx*s*.16,cy=end.y+d.dy*s*.16,px=-d.dy,py=d.dx,tip={x:cx+d.dx*len,y:cy+d.dy*len},base={x:cx-d.dx*len*.48,y:cy-d.dy*len*.48};c.save();c.globalAlpha=alpha;c.fillStyle="rgba(0,0,0,.45)";c.beginPath();c.moveTo(tip.x-d.dx*2,tip.y-d.dy*2);c.lineTo(base.x+px*half-d.dx*2,base.y+py*half-d.dy*2);c.lineTo(base.x-px*half-d.dx*2,base.y-py*half-d.dy*2);c.closePath();c.fill();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=(state.theme==="neon"&&state.pieces.length<650&&!moving&&c===staticCtx)?Math.min(8,s*.16):0;c.beginPath();c.moveTo(tip.x,tip.y);c.lineTo(base.x+px*half,base.y+py*half);c.lineTo(base.x-px*half,base.y-py*half);c.closePath();c.fill();c.globalAlpha=alpha*.32;c.fillStyle="#fff";c.beginPath();c.moveTo(cx+d.dx*len*.55,cy+d.dy*len*.55);c.lineTo(cx-d.dx*len*.10+px*half*.35,cy-d.dy*len*.10+py*half*.35);c.lineTo(cx-d.dx*len*.10-px*half*.35,cy-d.dy*len*.10-py*half*.35);c.closePath();c.fill();c.restore()}
+  function drawPiece(c,p,overridePts=null,alpha=1){const pts=overridePts||pointsForPiece(p),s=state.layout.scale,w=Math.max(1.55,s*.245),moving=!!overridePts,glow=state.theme==="neon"&&state.pieces.length<520&&s>7&&!moving&&c===staticCtx;drawPolyline(c,pts,"rgba(0,0,0,.34)",w*1.38,alpha,false);if(glow)drawPolyline(c,pts,p.color,w*1.45,alpha*.11,true);drawPolyline(c,pts,p.color,w,alpha,false);if(s>4)drawPolyline(c,pts,"rgba(255,255,255,.72)",Math.max(.55,w*.14),alpha*.18,false);drawTip(c,p,pts[pts.length-1],p.color,alpha,moving,moving?tipDirFromPoints(p,pts):DIRS[p.dir])}
+
+  function coverOriginalPiece(c,p){
+    const pts=pointsForPiece(p),s=state.layout.scale,w=Math.max(3.0,s*.44);
+    c.save();
+    c.lineCap="round";c.lineJoin="round";
+    c.strokeStyle=state.theme==="paper"?"#f9f1df":"#0b1430";
+    c.lineWidth=w*1.85;
+    c.beginPath();
+    c.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);
+    c.stroke();
+
+    // Also cover the arrowhead's old resting footprint.
+    const end=pts[pts.length-1],d=DIRS[p.dir];
+    c.fillStyle=state.theme==="paper"?"#f9f1df":"#0b1430";
+    c.beginPath();
+    c.arc(end.x+d.dx*s*.16,end.y+d.dy*s*.16,Math.max(5,s*.34),0,Math.PI*2);
+    c.fill();
+    c.restore();
+  }
+  function roundRect(c,x,y,w,h,r){c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+  function buildStatic(excludeId=null){
+    const c=staticCtx,L=state.layout;c.save();c.setTransform(L.dpr,0,0,L.dpr,0,0);
+    c.fillStyle=state.theme==="paper"?"#f9f1df":"#0b1430";c.fillRect(0,0,L.w,L.h);
+    if(state.theme!=="paper"){const g=c.createRadialGradient(L.w*.5,L.h*.05,0,L.w*.5,L.h*.05,L.w*.75);g.addColorStop(0,"rgba(104,125,255,.18)");g.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=g;c.fillRect(0,0,L.w,L.h)}
+    const dotR=Math.max(1.25,L.scale*(state.showGrid?.068:.048));
+    c.fillStyle=state.theme==="paper"?(state.showGrid?"rgba(101,77,43,.34)":"rgba(101,77,43,.18)"):(state.showGrid?"rgba(205,216,255,.36)":"rgba(205,216,255,.16)");
+    for(const i of state.maskCells){const p=xy(i),cx=L.ox+(p.x+.5)*L.scale,cy=L.oy+(p.y+.5)*L.scale;c.beginPath();c.arc(cx,cy,dotR,0,Math.PI*2);c.fill()}
+    for(const p of state.pieces){if(p.removed||p.id===excludeId)continue;drawPiece(c,p)}
+    c.restore();state.staticDirty=false;state.staticExclude=excludeId;
+  }
+  function render(){
+    renderQueued=false;
+    const L=state.layout;if(!L.w)return;const exclude=state.drag?state.drag.id:null;
+    if(state.staticDirty||state.staticExclude!==exclude)buildStatic(exclude);
+    ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(staticCanvas,0,0);ctx.restore();
+    ctx.save();ctx.setTransform(L.dpr,0,0,L.dpr,0,0);
+    const now=performance.now();
+    if(state.hintId&&!exclude){const p=state.pieces.find(x=>x.id===state.hintId&&!x.removed);if(p){drawHintHighlight(ctx,p,now);requestAnimationFrame(()=>{if(state.hintId)render()})}}
+    if(state.flashId&&now<state.flashUntil){const p=state.pieces.find(x=>x.id===state.flashId&&!x.removed);if(p){ctx.globalAlpha=.35+.25*Math.sin(now*.08);drawPiece(ctx,p,null,1);ctx.globalAlpha=1}}
+    if(state.drag){const p=state.pieces.find(x=>x.id===state.drag.id);if(p&&!p.removed){const pts=state.drag.route?segmentWithCum(state.drag.route,state.drag.cum,state.drag.progress,state.drag.progress+state.drag.chain):segment(routeFor(p,state.drag.steps),state.drag.progress,state.drag.progress+polyLen(pointsForPiece(p)));drawPiece(ctx,p,pts,1)}}
+    for(const a of state.anims){const p=state.pieces.find(x=>x.id===a.id);if(p)coverOriginalPiece(ctx,p)}
+    for(const a of state.anims){const p=state.pieces.find(x=>x.id===a.id);if(p){const pts=segmentWithCum(a.route,a.cum,a.progress,a.progress+a.chain);drawPiece(ctx,p,pts,1)}}
+    ctx.restore();if(state.hudDirty||(!state.anims.length&&!state.drag)){updateHud();state.hudDirty=false}
+  }
+  function updateHud(){els.level.textContent=state.level;els.left.textContent=state.pieces.filter(p=>!p.removed).length;els.moves.textContent=state.moves;els.hearts.textContent="♥".repeat(state.hearts)+"♡".repeat(Math.max(0,DIFFS[state.difficulty].hearts-state.hearts));els.app.classList.toggle("paper",state.theme==="paper");els.themeBtn.textContent=state.theme==="paper"?"🌙":"☀";els.sub.textContent=`${DIFFS[state.difficulty].label} • ${state.shapeName} • ${state.w}×${state.h}`;const h=els.hint.querySelector("span");if(h)h.textContent=state.hints>0?`Hint ${state.hints}`:"No hints"}
+  function toast(msg,ms=1200){els.toast.textContent=msg;els.toast.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>els.toast.classList.remove("show"),ms)}
+  function flash(id){state.flashId=id;state.flashUntil=performance.now()+430;requestAnimationFrame(()=>render())}
+  function animateOut(piece,steps,startProgress=0){
+    const route=routeFor(piece,steps),cum=cumLen(route),chain=polyLen(pointsForPiece(piece)),maxP=Math.max(0,cum[cum.length-1]-chain),from=Math.min(maxP,Math.min(startProgress,maxP)+Math.max(1.5,state.layout.scale*.035)),duration=Math.max(560,Math.min(1950,420+(maxP-from)*.70));
+    // Logical removal happens immediately, so the player can tap the next arrow
+    // while this one is still visually slithering away.
+    piece.removed=true;
+    state.history.push(piece.id);
+    state.hudDirty=true;
+    const anim={id:piece.id,steps,progress:from,route,cum,chain,maxP};
+    state.anims.push(anim);
+    try{render()}catch(err){console.error(err);state.anims=state.anims.filter(a=>a!==anim);state.history.pop();piece.removed=false;state.hudDirty=true;render();return}
+    const start=performance.now();
+    function ease(t){return .10*t+.90*t*t}
+    function frame(now){
+      if(!state.anims.includes(anim))return;
+      const t=Math.min(1,(now-start)/duration);
+      anim.progress=from+(maxP-from)*ease(t);
+      render();
+      if(t<1)requestAnimationFrame(frame);
+      else{
+        state.anims=state.anims.filter(a=>a!==anim);
+        state.staticDirty=true;state.hudDirty=true;
+        render();checkWin();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  function showGameOver(){state.gameOver=true;state.busy=false;els.gameStats.textContent=`Level ${state.level} • ${state.moves} moves • ${state.pieces.filter(p=>!p.removed).length} arrows left`;els.gameOver.classList.add("show");state.hudDirty=true;render()}
+  function blockedAttempt(p,r,msg="Blocked"){
+    if(state.gameOver)return;
+    state.moves++;state.hearts=Math.max(0,state.hearts-1);state.hudDirty=true;flash(p.id);if(r&&r.blocker)flash(r.blocker);toast(`${msg} • ${state.hearts} ${state.hearts===1?"life":"lives"} left`,1200);if(state.hearts<=0)showGameOver()
+  }
+  function tap(id){if(state.busy||state.drag||state.gameOver)return;const p=state.pieces.find(x=>x.id===id);if(!p||p.removed)return;state.hintId=null;const r=canExit(p);if(!r.ok){blockedAttempt(p,r,r.selfBlock?"Blocked by itself":"Blocked");return}state.moves++;state.hudDirty=true;animateOut(p,r.steps,0)}
+  function checkWin(){if(!state.anims.length&&state.pieces.every(p=>p.removed)){els.winStats.textContent=`${state.moves} moves • ${state.hearts} lives • ${state.hints} hints left`;els.win.classList.add("show")}}
+  function newGame(kind="fresh"){els.gameOver.classList.remove("show");if(kind==="next"||kind==="fresh"){state.level=Math.min(999,state.level+1);randomizeSeed()}else if(kind==="reroll"){/* keep same hidden seed for replay */}startGeneration("Generating organic level…",`Level ${state.level}`)}
+  function undo(){if(state.busy||state.drag||state.gameOver||!state.history.length)return;const id=state.history.pop(),p=state.pieces.find(x=>x.id===id);if(p){state.anims=state.anims.filter(a=>a.id!==id);p.removed=false;state.moves=Math.max(0,state.moves-1);state.hintId=null;state.hudDirty=true;els.win.classList.remove("show");state.staticDirty=true;render();toast("Last arrow restored")}}
+  function hint(){if(state.busy||state.drag||state.gameOver)return;if(state.hints<=0){toast("No hints left",1200);return}const opts=findRemovable();if(!opts.length){toast("No legal move found — generation bug.",1600);return}opts.sort((a,b)=>b.piece.cells.length-a.piece.cells.length);state.hints--;state.hintId=opts[0].piece.id;state.hudDirty=true;render();toast("Highlighted arrow")}
+  function solveOne(){if(state.busy||state.drag||state.gameOver)return;const opts=findRemovable();if(!opts.length){toast("No legal arrow right now");return}opts.sort((a,b)=>b.piece.cells.length-a.piece.cells.length);tap(opts[0].piece.id)}
+
+  function boardPt(e){const r=els.canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+  function pointFromEvent(e){return{x:e.clientX,y:e.clientY}}
+  function distSeg(p,a,b){const vx=b.x-a.x,vy=b.y-a.y,wx=p.x-a.x,wy=p.y-a.y,t=Math.max(0,Math.min(1,(vx*wx+vy*wy)/((vx*vx+vy*vy)||1))),px=a.x+vx*t,py=a.y+vy*t;return Math.hypot(p.x-px,p.y-py)}
+  function hitTest(pt){let best=null,bestD=Infinity,thr=Math.max(14,state.layout.scale*.48);for(let i=state.pieces.length-1;i>=0;i--){const p=state.pieces[i];if(p.removed)continue;const pts=pointsForPiece(p);for(let j=1;j<pts.length;j++){const d=distSeg(pt,pts[j-1],pts[j]);if(d<bestD){bestD=d;best=p}}}return bestD<=thr?best:null}
+  function tipHit(pt,p){const end=pointsForPiece(p).slice(-1)[0];return Math.hypot(pt.x-end.x,pt.y-end.y)<=Math.max(18,state.layout.scale*.62)}
+  function pointerList(){return Array.from(pointers.values())}
+  function midPoint(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+  function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+  function beginGesture(){const ps=pointerList();if(ps.length<2)return;const m=midPoint(ps[0],ps[1]);gesture={startDist:Math.max(1,distance(ps[0],ps[1])),startZoom:state.view.zoom,startPanX:state.view.panX,startPanY:state.view.panY,startMid:m};state.drag=null;pendingTap=null;panDrag=null;state.staticDirty=true;requestRender()}
+  function updateGesture(){const ps=pointerList();if(ps.length<2||!gesture)return;const m=midPoint(ps[0],ps[1]),ratio=distance(ps[0],ps[1])/gesture.startDist;state.view.zoom=Math.max(.72,Math.min(3.2,gesture.startZoom*ratio));state.view.panX=gesture.startPanX+(m.x-gesture.startMid.x);state.view.panY=gesture.startPanY+(m.y-gesture.startMid.y);clampView();requestRender()}
+  function startArrowDrag(e,p,r){els.canvas.setPointerCapture(e.pointerId);const route=routeFor(p,r.steps),cum=cumLen(route),chain=polyLen(pointsForPiece(p));state.drag={id:p.id,steps:r.steps,exitProgress:(r.exitStep+.15)*state.layout.scale,edgeRelease:r.exitStep<=1,progress:0,pointerId:e.pointerId,route,cum,chain,maxP:Math.max(0,cum[cum.length-1]-chain)};state.staticDirty=true;render()}
+  function updateArrowDrag(e){if(!state.drag||state.drag.pointerId!==e.pointerId)return;const p=state.pieces.find(x=>x.id===state.drag.id);if(!p)return;const pt=boardPt(e),end=pointsForPiece(p).slice(-1)[0],d=DIRS[p.dir],proj=(pt.x-end.x)*d.dx+(pt.y-end.y)*d.dy,maxP=state.drag.maxP;state.drag.progress=Math.max(0,Math.min(maxP,proj));requestRender();const releaseAt=state.drag.edgeRelease?Math.min(state.drag.exitProgress*.35,Math.max(6,state.layout.scale*.28)):state.drag.exitProgress;if(state.drag.progress>=releaseAt){const startP=state.drag.progress,steps=state.drag.steps;state.drag=null;state.moves++;state.hudDirty=true;animateOut(p,steps,startP)}}
+  function endDrag(e){if(!state.drag||state.drag.pointerId!==e.pointerId)return false;const drag=state.drag,p=state.pieces.find(x=>x.id===drag.id),progress=drag.progress,steps=drag.steps,exit=drag.exitProgress;state.drag=null;state.staticDirty=true;const releaseAt=drag.edgeRelease?Math.min(exit*.35,Math.max(6,state.layout.scale*.28)):exit*.95;if(p&&progress>=releaseAt){state.moves++;state.hudDirty=true;animateOut(p,steps,progress)}else{render();toast("Drag the tip outward a little farther",950)}return true}
+  els.canvas.addEventListener("pointerdown",e=>{
+    if(state.busy||state.gameOver)return;
+    els.canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId,pointFromEvent(e));
+    if(pointers.size>=2){beginGesture();return}
+    const pt=boardPt(e),p=hitTest(pt);
+
+    // Tap mode should feel immediate: tapping an arrow removes/blocks it on
+    // pointer-down, not after pointer-up. One-finger pan still starts on empty
+    // space; drag mode keeps arrow-tip dragging behavior.
+    if(!state.dragTips){
+      if(p){pendingTap=null;panDrag=null;tap(p.id);return}
+      pendingTap=null;
+      panDrag={pointerId:e.pointerId,last:pointFromEvent(e),moved:false};
+      return;
+    }
+
+    pendingTap=p?{pointerId:e.pointerId,id:p.id,start:pointFromEvent(e),moved:false}:null;
+    if(p&&tipHit(pt,p)){
+      const r=canExit(p);
+      if(!r.ok){blockedAttempt(p,r,"Blocked");pendingTap=null;return}
+      startArrowDrag(e,p,r);pendingTap=null;return
+    }
+  });
+  els.canvas.addEventListener("pointermove",e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,pointFromEvent(e));if(pointers.size>=2){updateGesture();return}if(state.drag){updateArrowDrag(e);return}if(panDrag&&panDrag.pointerId===e.pointerId&&!state.dragTips){const pt=pointFromEvent(e),dx=pt.x-panDrag.last.x,dy=pt.y-panDrag.last.y;if(Math.hypot(pt.x-(pendingTap?.start.x??pt.x),pt.y-(pendingTap?.start.y??pt.y))>8)panDrag.moved=true;state.view.panX+=dx;state.view.panY+=dy;panDrag.last=pt;clampView();requestRender();return}if(pendingTap&&pendingTap.pointerId===e.pointerId){const pt=pointFromEvent(e);if(Math.hypot(pt.x-pendingTap.start.x,pt.y-pendingTap.start.y)>10)pendingTap.moved=true}});
+  function finishPointer(e){const consumed=endDrag(e);const wasPending=pendingTap&&pendingTap.pointerId===e.pointerId?pendingTap:null;const wasPan=panDrag&&panDrag.pointerId===e.pointerId?panDrag:null;pointers.delete(e.pointerId);if(pointers.size<2)gesture=null;if(pointers.size===0){panDrag=null;if(wasPending&&!wasPending.moved&&!(wasPan&&wasPan.moved)&&!consumed)tap(wasPending.id);pendingTap=null}else if(pointers.size===1){pendingTap=null;panDrag=null}}
+  els.canvas.addEventListener("pointerup",finishPointer);els.canvas.addEventListener("pointercancel",finishPointer);
+
+  function syncControls(){els.levelInput.value=state.level;els.levelValue.textContent=state.level;els.sizeSelect.value=state.sizeMode;els.sizeValue.textContent=state.sizeMode==="auto"?`${DIFFS[state.difficulty].label} range`:state.sizeMode.replace("x"," × ");els.shapeSelect.value=state.shapeMode;els.shapeValue.textContent=SHAPES[state.shapeMode];els.twistInput.value=state.twist;els.twistValue.textContent=["Straight","Gentle","Balanced","Curvy","Wild"][state.twist-1];els.tangleInput.value=state.tangle;els.tangleValue.textContent=["Open","Mild","Layered","Entangled","Chaos"][state.tangle-1];els.dragInput.checked=state.dragTips;els.dragValue.textContent=state.dragTips?"On":"Off";els.diffValue.textContent=DIFFS[state.difficulty].label;els.diffChips.querySelectorAll(".chip").forEach(c=>c.classList.toggle("active",c.dataset.diff===state.difficulty));els.neon.classList.toggle("active",state.theme==="neon");els.paper.classList.toggle("active",state.theme==="paper");els.themeValue.textContent=state.theme==="paper"?"Paper":"Neon";els.apply.querySelector("span").textContent="Apply"}
+  function settingsSignature(){
+    const activeDiff=els.diffChips.querySelector(".chip.active[data-diff]");
+    const pendingDiff=activeDiff?activeDiff.dataset.diff:state.difficulty;
+    const pendingTheme=els.paper.classList.contains("active")?"paper":"neon";
+    return [els.sizeSelect.value,pendingDiff,els.shapeSelect.value,els.twistInput.value,els.tangleInput.value,els.dragInput.checked?"drag":"tap",pendingTheme].join("|");
+  }
+  function applyControls(forceFresh=false){
+    const before=[state.sizeMode,state.difficulty,state.shapeMode,state.twist,state.tangle,state.dragTips?"drag":"tap",state.theme].join("|");
+    const activeDiff=els.diffChips.querySelector(".chip.active[data-diff]");
+    state.difficulty=activeDiff?activeDiff.dataset.diff:state.difficulty;
+    state.theme=els.paper.classList.contains("active")?"paper":"neon";
+    state.sizeMode=els.sizeSelect.value;
+    state.shapeMode=els.shapeSelect.value;
+    state.twist=Number(els.twistInput.value)||4;
+    state.tangle=Number(els.tangleInput.value)||4;
+    state.dragTips=!!els.dragInput.checked;
+    const after=[state.sizeMode,state.difficulty,state.shapeMode,state.twist,state.tangle,state.dragTips?"drag":"tap",state.theme].join("|");
+    if(forceFresh||after!==before)randomizeSeed();
+  }
+  function showLoading(msg){
+    els.loadingText.textContent=msg||"Building a solvable tangled board.";
+    els.loading.classList.add("show");
+    state.busy=true;
+  }
+  function hideLoading(){
+    els.loading.classList.remove("show");
+    state.busy=false;
+  }
+  function startGeneration(msg,successMsg){
+    els.win.classList.remove("show");els.gameOver.classList.remove("show");
+    const [gw,gh]=sizeForLevel();
+    showLoading(msg);
+    setTimeout(()=>{
+      els.loadingText.textContent=`Monotone carving ${gw}×${gh} • no fallback boards`;
+      const ok=generateLevel();
+      if(ok){
+        resizeCanvas();
+        syncControls();
+        hideLoading();
+        toast(successMsg||`${state.pieces.length} arrows • ${state.shapeName} • ${state.w}×${state.h}`);
+      }else{
+        hideLoading();
+        toast("Couldn’t build that exact setting. Hit New for another randomized level.",2400);
+      }
+    },60);
+  }
+  function regenerateFromSettings(){
+    applyControls(true);
+    closeSettings();
+    startGeneration("Applying generation settings…","Applied settings.");
+  }
+  function openSettings(){syncControls();els.modal.classList.add("open")}function closeSettings(){els.modal.classList.remove("open")}
+
+  els.newBtn.onclick=()=>newGame("fresh");els.undo.onclick=undo;els.hint.onclick=hint;els.solve.onclick=solveOne;els.grid.onclick=()=>{state.showGrid=!state.showGrid;state.staticDirty=true;render();toast(state.showGrid?"Grid on":"Grid off")};els.next.onclick=()=>newGame("next");els.replay.onclick=()=>newGame("replay");els.restart.onclick=()=>newGame("replay");els.themeBtn.onclick=()=>{state.theme=state.theme==="paper"?"neon":"paper";startGeneration("Rebuilding with new theme…",state.theme==="paper"?"Paper mode":"Neon mode")};els.settingsBtn.onclick=openSettings;els.close.onclick=closeSettings;els.modal.addEventListener("pointerdown",e=>{if(e.target===els.modal)closeSettings()});els.apply.onclick=()=>regenerateFromSettings();if(els.random)els.random.onclick=()=>{applyControls(false);state.level=Math.floor(Math.random()*999)+1;randomizeSeed();closeSettings();startGeneration("Generating random organic level…","Random level generated.")};
+  function markPending(){els.apply.querySelector("span").textContent="Apply*"}
+  els.levelInput.oninput=()=>{els.levelValue.textContent=els.levelInput.value;markPending()};els.sizeSelect.onchange=()=>{els.sizeValue.textContent=els.sizeSelect.value==="auto"?"Auto":els.sizeSelect.value.replace("x"," × ");markPending()};els.shapeSelect.onchange=()=>{els.shapeValue.textContent=SHAPES[els.shapeSelect.value];markPending()};els.twistInput.oninput=()=>{els.twistValue.textContent=["Straight","Gentle","Balanced","Curvy","Wild"][Number(els.twistInput.value)-1];markPending()};els.tangleInput.oninput=()=>{els.tangleValue.textContent=["Open","Mild","Layered","Entangled","Chaos"][Number(els.tangleInput.value)-1];markPending()};els.dragInput.onchange=()=>{els.dragValue.textContent=els.dragInput.checked?"On":"Off";markPending()};els.diffChips.onclick=e=>{const c=e.target.closest(".chip[data-diff]");if(c){state.difficulty=c.dataset.diff;els.diffValue.textContent=DIFFS[state.difficulty].label;els.diffChips.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("active",ch===c));markPending()}};els.neon.onclick=()=>{state.theme="neon";els.neon.classList.add("active");els.paper.classList.remove("active");els.themeValue.textContent="Neon";markPending()};els.paper.onclick=()=>{state.theme="paper";els.paper.classList.add("active");els.neon.classList.remove("active");els.themeValue.textContent="Paper";markPending()};
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h")hint();if(e.key.toLowerCase()==="u")undo();if(e.key.toLowerCase()==="n")newGame("fresh");if(e.key.toLowerCase()==="s")solveOne();if(e.key==="Escape")closeSettings()});window.addEventListener("resize",resizeCanvas);
+
+
+  // PWA install prompt: Android supports beforeinstallprompt; iOS requires
+  // manual Share -> Add to Home Screen, so we show platform-specific guidance.
+  let deferredInstallPrompt=null;
+  const installPromptEl=$("installPrompt"), installBtn=$("installBtn"), installDismiss=$("installDismiss"), iosSteps=$("iosSteps"), installText=$("installText");
+  function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true}
+  function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+  function maybeShowInstallPrompt(force=false){
+    if(!installPromptEl||isStandalone())return;
+    if(!force && localStorage.getItem("arrowSlitherInstallDismissed")==="1")return;
+    if(deferredInstallPrompt || isIOS()){
+      if(isIOS()&&!deferredInstallPrompt){iosSteps.style.display="block";installBtn.textContent="How";installText.textContent="Install this as a full-screen Home Screen app."}
+      else{iosSteps.style.display="none";installBtn.textContent="Install";installText.textContent="Add it to your home screen for full-screen offline play."}
+      installPromptEl.classList.add("show");
+    }
+  }
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;setTimeout(()=>maybeShowInstallPrompt(),900)});
+  window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;installPromptEl?.classList.remove("show");toast("Installed!")});
+  installBtn?.addEventListener("click",async()=>{
+    if(isIOS()&&!deferredInstallPrompt){iosSteps.style.display="block";return}
+    if(!deferredInstallPrompt){maybeShowInstallPrompt(true);return}
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice.catch(()=>null);
+    deferredInstallPrompt=null;
+    installPromptEl?.classList.remove("show");
+  });
+  installDismiss?.addEventListener("click",()=>{localStorage.setItem("arrowSlitherInstallDismissed","1");installPromptEl?.classList.remove("show")});
+  setTimeout(()=>{if(isIOS())maybeShowInstallPrompt()},1400);
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
+  }
+
+
+  randomizeSeed();if(generateLevel()){resizeCanvas();syncControls();setTimeout(()=>toast("v42: Installable PWA."),350)}else{resizeCanvas();syncControls();setTimeout(()=>toast("Tap New to generate a board.",1200),350)};
+})();
+</script>
+</body>
+</html>
